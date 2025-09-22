@@ -125,6 +125,9 @@ class TestPreCommitHookIntegration:
         """Test that pre-commit hook can execute tests (requires venv)."""
         hook_path = os.path.join(project_root, '.git', 'hooks', 'pre-commit')
 
+        if not os.path.exists(hook_path):
+            pytest.skip("Pre-commit hook not installed - skipping in CI environment")
+
         # Run hook with timeout to prevent infinite loops during testing
         env = os.environ.copy()
         env['PATH'] = f"{os.path.join(project_root, '.venv', 'bin')}:{env['PATH']}"
@@ -254,8 +257,10 @@ class TestMergeVerificationWorkflow:
             merger_content = f.read()
         assert "ADR-002" in merger_content, "MergerAgent missing ADR-002 reference"
 
-        # Check pre-commit hook
+        # Check pre-commit hook (skip in CI)
         hook_path = os.path.join(project_root, '.git', 'hooks', 'pre-commit')
+        if not os.path.exists(hook_path):
+            pytest.skip("Pre-commit hook not installed - skipping in CI environment")
         with open(hook_path, 'r') as f:
             hook_content = f.read()
         assert "ADR-002" in hook_content, "Pre-commit hook missing ADR-002 reference"
@@ -284,8 +289,10 @@ class TestMergeVerificationWorkflow:
         """Test that all components use consistent test verification approach."""
         # All components should use 'python run_tests.py' for consistency
 
-        # Check pre-commit hook
+        # Check pre-commit hook (skip in CI)
         hook_path = os.path.join(project_root, '.git', 'hooks', 'pre-commit')
+        if not os.path.exists(hook_path):
+            pytest.skip("Pre-commit hook not installed - skipping in CI environment")
         with open(hook_path, 'r') as f:
             hook_content = f.read()
         assert "python run_tests.py" in hook_content, "Pre-commit hook uses inconsistent test command"

@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from pathlib import Path
 
 from tools.context_handoff import ContextMessageHandoff
@@ -14,6 +15,10 @@ def test_handoff_context_read_returns_latest_record():
         context={"k": 1},
         persist=True,
     ).run()
+
+    # Small delay to ensure different modification times
+    time.sleep(0.1)
+
     t2 = ContextMessageHandoff(
         target_agent="PlannerAgent",
         prompt="Plan B",
