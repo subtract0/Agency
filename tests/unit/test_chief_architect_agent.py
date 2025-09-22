@@ -92,9 +92,6 @@ class TestChiefArchitectAgentInitialization:
         """Test that all system hooks are properly integrated."""
         with patch('chief_architect_agent.chief_architect_agent.create_message_filter_hook') as mock_filter, \
              patch('chief_architect_agent.chief_architect_agent.create_memory_integration_hook') as mock_memory, \
-             patch('chief_architect_agent.chief_architect_agent.create_intent_router_hook') as mock_intent, \
-             patch('chief_architect_agent.chief_architect_agent.create_tool_wrapper_hook') as mock_tool, \
-             patch('chief_architect_agent.chief_architect_agent.create_mutation_snapshot_hook') as mock_mutation, \
              patch('chief_architect_agent.chief_architect_agent.create_composite_hook') as mock_composite, \
              patch('chief_architect_agent.chief_architect_agent.Agent') as mock_agent_class, \
              patch('chief_architect_agent.chief_architect_agent.get_model_instance') as mock_model:
@@ -102,16 +99,10 @@ class TestChiefArchitectAgentInitialization:
             # Setup hook mocks
             filter_hook = Mock(name='filter_hook')
             memory_hook = Mock(name='memory_hook')
-            intent_hook = Mock(name='intent_hook')
-            tool_hook = Mock(name='tool_hook')
-            mutation_hook = Mock(name='mutation_hook')
             composite_hook = Mock(name='composite_hook')
 
             mock_filter.return_value = filter_hook
             mock_memory.return_value = memory_hook
-            mock_intent.return_value = intent_hook
-            mock_tool.return_value = tool_hook
-            mock_mutation.return_value = mutation_hook
             mock_composite.return_value = composite_hook
             mock_model.return_value = "gpt-5"
 
@@ -121,22 +112,16 @@ class TestChiefArchitectAgentInitialization:
                 agent_context=mock_agent_context
             )
 
-            # Verify all hooks were created
+            # Verify hooks were created
             assert mock_filter.called
             assert mock_memory.called
-            assert mock_intent.called
-            assert mock_tool.called
-            assert mock_mutation.called
             assert mock_composite.called
 
-            # Verify composite hook was created with all hooks
+            # Verify composite hook was created with correct hooks
             composite_args = mock_composite.call_args[0][0]
-            assert len(composite_args) == 5
+            assert len(composite_args) == 2
             assert filter_hook in composite_args
             assert memory_hook in composite_args
-            assert intent_hook in composite_args
-            assert tool_hook in composite_args
-            assert mutation_hook in composite_args
 
             # Verify hooks were passed to agent
             call_kwargs = mock_agent_class.call_args[1]
