@@ -25,14 +25,15 @@ class SimpleTelemetry:
         Args:
             retention_runs: Number of recent runs to keep (default: 10)
         """
-        self.base_dir = Path("logs")
+        # Anchor all paths under the current working directory (repo root during tests)
+        self.allowed_root = Path.cwd().resolve()
+        self.base_dir = self.allowed_root / "logs"
         self.events_dir = self.base_dir / "events"
         self.archive_dir = self.base_dir / "archive"
         self.retention_runs = retention_runs
 
-        # Create directories
-        self.events_dir.mkdir(parents=True, exist_ok=True)
-        self.archive_dir.mkdir(parents=True, exist_ok=True)
+        # Create directories (best-effort)
+        self._ensure_dirs()
 
         # Current run file
         self.run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -40,6 +41,23 @@ class SimpleTelemetry:
 
         # Apply retention on initialization
         self._apply_retention()
+
+    def _ensure_dirs(self) -> None:
+        """Ensure telemetry directories exist (best-effort)."""
+        try:
+            self.events_dir.mkdir(parents=True, exist_ok=True)
+            self.archive_dir.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            # Non-fatal; log() will attempt again and fallback gracefully
+            pass
+
+    def _is_safe_path(self, p: Path) -> bool:
+        """Return True if path is within allowed_root (prevents traversal)."""
+        try:
+            rp = p.resolve()
+            return self.allowed_root == rp or self.allowed_root in rp.parents
+        except Exception:
+            return False
 
     def log(self, event: str, data: Dict[str, Any], level: str = "info"):
         """
@@ -55,12 +73,34 @@ class SimpleTelemetry:
             "run_id": self.run_id,
             "level": level,
             "event": event,
-            "data": data
+            "data": data or {}
         }
 
         try:
-            with open(self.current_file, "a") as f:
-                f.write(json.dumps(entry) + "\n")
+            # Recreate directory on-demand (covers mid-run deletions)
+            parent = self.current_file.parent
+            if not self._is_safe_path(parent):
+                raise PermissionError(f"Unsafe telemetry path outside project root: {parent}")
+            parent.mkdir(parents=True, exist_ok=True)
+
+            # Secure open with 0600 perms
+            import os as _os
+            fd = _os.open(str(self.current_file), _os.O_CREAT | _os.O_APPEND | _os.O_WRONLY, 0o600)
+            try:
+                with _os.fdopen(fd, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(entry) + "\n")
+                # Ensure file perms are correct (first creation enforces; chmod guards re-creation)
+                try:
+                    _os.chmod(self.current_file, 0o600)
+                except Exception:
+                    pass
+            except Exception:
+                # Ensure the descriptor is closed on failure
+                try:
+                    _os.close(fd)
+                except Exception:
+                    pass
+                raise
         except Exception as e:
             # Fallback to stderr if file logging fails
             import sys
@@ -173,6 +213,9 @@ class SimpleTelemetry:
         Keeps only the most recent N runs in the events directory.
         """
         try:
+            # Ensure archive dir exists before moving files
+            self.archive_dir.mkdir(parents=True, exist_ok=True)
+
             # Get all run files sorted by name (which includes timestamp)
             run_files = sorted(self.events_dir.glob("run_*.jsonl"))
 

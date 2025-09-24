@@ -17,7 +17,16 @@ from dataclasses import dataclass, asdict
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileModifiedEvent, FileCreatedEvent
 
+# Global registry to prevent background monitor leakage across tests/runs
+_ERROR_MONITOR_REGISTRY: "set[ErrorMonitor]"  # forward-declared; assigned below
+
 from core.telemetry import get_telemetry, emit
+
+# Initialize the global registry for error monitors
+try:
+    _ERROR_MONITOR_REGISTRY = set()
+except Exception:
+    _ERROR_MONITOR_REGISTRY = set()
 
 
 @dataclass
@@ -458,6 +467,20 @@ class ErrorMonitor:
                 }, level="error")
                 self._stop_event.wait(10.0)  # Longer sleep on error
 
+    @classmethod
+    def stop_all(cls):
+        """Stop all running ErrorMonitor instances (safety for tests/runs)."""
+        try:
+            # Create a snapshot to avoid concurrent modification
+            for monitor in list(_ERROR_MONITOR_REGISTRY):
+                try:
+                    monitor.stop()
+                except Exception:
+                    continue
+        except Exception:
+            pass
+
+
     def start(self):
         """Start monitoring log files for errors."""
         if self.is_monitoring:
@@ -471,6 +494,12 @@ class ErrorMonitor:
         )
         self._monitor_thread.start()
         self.is_monitoring = True
+
+        # Register this monitor globally to prevent leakage across tests
+        try:
+            _ERROR_MONITOR_REGISTRY.add(self)
+        except Exception:
+            pass
 
         emit("error_monitor_started", {
             "sources": self.error_sources,
@@ -487,6 +516,12 @@ class ErrorMonitor:
             self._monitor_thread.join(timeout=10.0)
 
         self.is_monitoring = False
+
+        # Deregister from global registry
+        try:
+            _ERROR_MONITOR_REGISTRY.discard(self)
+        except Exception:
+            pass
 
         emit("error_monitor_stopped", {})
 
@@ -511,6 +546,12 @@ class EventDetectionSystem:
     def __init__(self,
                  file_callback: Optional[Callable[[FileEvent], None]] = None,
                  error_callback: Optional[Callable[[ErrorEvent], None]] = None):
+        # Safety: stop any previously running error monitors to avoid cross-test leakage
+        try:
+            ErrorMonitor.stop_all()
+        except Exception:
+            pass
+
         self.file_watcher = FileWatcher(file_callback)
         self.error_monitor = ErrorMonitor(error_callback)
         self.telemetry = get_telemetry()

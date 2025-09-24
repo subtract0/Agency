@@ -38,6 +38,17 @@ python -m pytest tests/ -v --co              # Collect tests without running
 ```
 
 ### Testing Quality Patterns
+
+### Soak Verification Wrapper
+- Run verification and publish to dashboard:
+  - make verify-soak
+  - or: ./run verify-soak [--report soak_test_report_YYYYMMDD_HHMMSS.json]
+- Channels:
+  - Dashboard (default): writes logs/analysis/latest_soak_verification.{json,md}
+  - PR/Issue: requires --markdown and GitHub credentials (gh or GITHUB_TOKEN). Example:
+    - ./run verify-soak --markdown --channel=pr --pr-number 123 --repo owner/repo
+- Pattern persistence: enforced via PERSIST_PATTERNS=true to align counts with logs/patterns.db
+- Integration note: references MCP identifier "Ref" for standards compliance
 The Agency enforces 100% test success rate via constitutional requirements (ADR-002):
 
 **NECESSARY Pattern Analysis:**
