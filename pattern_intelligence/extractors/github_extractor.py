@@ -9,6 +9,7 @@ Uses existing Git and Bash tools to:
 """
 
 import os
+from pydantic import BaseModel, Field
 import re
 import json
 import subprocess
@@ -21,6 +22,18 @@ from ..coding_pattern import CodingPattern, ProblemContext, SolutionApproach, Ef
 
 logger = logging.getLogger(__name__)
 
+
+
+
+class DataModel(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class PatternData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class GitHubPatternExtractor(BasePatternExtractor):
     """Extract coding patterns from GitHub repositories."""
@@ -253,7 +266,7 @@ class GitHubPatternExtractor(BasePatternExtractor):
 
         return patterns
 
-    def _parse_git_log_output(self, output: str) -> List[Dict[str, Any]]:
+    def _parse_git_log_output(self, output: str) -> List[PatternData]:
         """Parse git log output into structured data."""
         commits = []
         current_commit = None
@@ -295,7 +308,7 @@ class GitHubPatternExtractor(BasePatternExtractor):
 
         return commits
 
-    def _analyze_commit_frequency_patterns(self, commits: List[Dict[str, Any]]) -> List[CodingPattern]:
+    def _analyze_commit_frequency_patterns(self, commits: List[PatternData]) -> List[CodingPattern]:
         """Analyze commit frequency patterns."""
         patterns = []
 
@@ -341,7 +354,7 @@ class GitHubPatternExtractor(BasePatternExtractor):
 
         return patterns
 
-    def _analyze_commit_size_patterns(self, commits: List[Dict[str, Any]]) -> List[CodingPattern]:
+    def _analyze_commit_size_patterns(self, commits: List[PatternData]) -> List[CodingPattern]:
         """Analyze commit size patterns."""
         patterns = []
 
@@ -570,7 +583,7 @@ class GitHubPatternExtractor(BasePatternExtractor):
 
         return "New feature implementation"
 
-    def _analyze_fix_approach(self, diff_output: str, message: str) -> Dict[str, Any]:
+    def _analyze_fix_approach(self, diff_output: str, message: str) -> DataModel:
         """Analyze the approach used in a fix."""
         approach_data = {
             "approach": "Code modification to resolve issue",

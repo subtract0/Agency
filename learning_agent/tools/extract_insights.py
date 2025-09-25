@@ -2,12 +2,18 @@
 Extract actionable insights from session analysis.
 """
 from agency_swarm.tools import BaseTool
-from pydantic import Field
+from pydantic import BaseModel, Field
 from typing import Dict, Any, List
 import json
 import re
 from datetime import datetime
 
+
+
+class LearningData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class ExtractInsights(BaseTool):
     """
@@ -70,7 +76,7 @@ class ExtractInsights(BaseTool):
         except Exception as e:
             return f"Error extracting insights: {str(e)}"
 
-    def _extract_tool_insights(self, analysis_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _extract_tool_insights(self, analysis_data: LearningData) -> List[LearningData]:
         """Extract insights about tool usage patterns."""
         tool_analysis = analysis_data.get("tool_analysis", {})
         insights = []
@@ -123,7 +129,7 @@ class ExtractInsights(BaseTool):
 
         return insights
 
-    def _extract_error_insights(self, analysis_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _extract_error_insights(self, analysis_data: LearningData) -> List[LearningData]:
         """Extract insights about error patterns and resolution strategies."""
         error_analysis = analysis_data.get("error_analysis", {})
         insights = []
@@ -175,7 +181,7 @@ class ExtractInsights(BaseTool):
 
         return insights
 
-    def _extract_workflow_insights(self, analysis_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _extract_workflow_insights(self, analysis_data: LearningData) -> List[LearningData]:
         """Extract insights about successful workflow patterns."""
         workflow_analysis = analysis_data.get("workflow_analysis", {})
         insights = []
@@ -220,7 +226,7 @@ class ExtractInsights(BaseTool):
 
         return insights
 
-    def _extract_optimization_insights(self, analysis_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _extract_optimization_insights(self, analysis_data: LearningData) -> List[LearningData]:
         """Extract general optimization insights."""
         insights = []
 

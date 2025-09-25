@@ -4,6 +4,7 @@ Only activates when FRESH_USE_FIRESTORE=true and gracefully degrades.
 """
 
 import os
+from pydantic import BaseModel, Field
 import logging
 from datetime import datetime
 from typing import Any, Dict, List
@@ -18,6 +19,18 @@ from .memory import MemoryStore, InMemoryStore
 
 logger = logging.getLogger(__name__)
 
+
+
+
+class ResponseData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class DataModel(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class FirestoreStore(MemoryStore):
     """
@@ -146,7 +159,7 @@ class FirestoreStore(MemoryStore):
                 self._initialize_fallback()
             self._fallback_store.store(key, content, tags)
 
-    def search(self, tags: List[str]) -> List[Dict[str, Any]]:
+    def search(self, tags: List[str]) -> List[DataModel]:
         """Search memories by tags using Firestore array-contains-any."""
         if self._fallback_store:
             return self._fallback_store.search(tags)
@@ -176,7 +189,7 @@ class FirestoreStore(MemoryStore):
             # Fall back to empty result rather than crash
             return []
 
-    def get_all(self) -> List[Dict[str, Any]]:
+    def get_all(self) -> List[ResponseData]:
         """Get all memories from Firestore."""
         if self._fallback_store:
             return self._fallback_store.get_all()

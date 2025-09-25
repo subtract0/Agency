@@ -4,18 +4,36 @@ from datetime import datetime
 from typing import Any, Dict
 
 from agency_swarm.tools import BaseTool
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from auditor_agent.ast_analyzer import ASTAnalyzer
 from agency_memory import VectorStore
 
+
+
+
+
+class AnalysisData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class MemoryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class ErrorData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class RunArchitectureLoop(BaseTool):
     target_path: str = Field(default=os.getcwd(), description="Root of the repository to audit")
     objective: str = Field(default="auto", description="Optional explicit objective override")
 
     def run(self) -> str:
-        findings: Dict[str, Any] = {"timestamp": datetime.now().isoformat()}
+        findings: AnalysisData = {"timestamp": datetime.now().isoformat()}
 
         analyzer = ASTAnalyzer()
         analysis = analyzer.analyze_directory(self.target_path)
@@ -44,8 +62,8 @@ class RunArchitectureLoop(BaseTool):
 
         return json.dumps(findings, indent=2)
 
-    def _detect_vectorstore_api_mismatches(self) -> Dict[str, Any]:
-        mismatches: Dict[str, Any] = {"issues": []}
+    def _detect_vectorstore_api_mismatches(self) -> MemoryData:
+        mismatches: MemoryData = {"issues": []}
         try:
             import inspect
             import agency_memory.vector_store as vs_mod
@@ -66,7 +84,7 @@ class RunArchitectureLoop(BaseTool):
             mismatches["error"] = str(e)
         return mismatches
 
-    def _choose_high_impact_target(self, findings: Dict[str, Any]) -> Dict[str, str]:
+    def _choose_high_impact_target(self, findings: ErrorData) -> Dict[str, str]:
         issues = findings.get("api_mismatches", {}).get("issues", [])
         if any("VectorStore" in i for i in issues):
             return {

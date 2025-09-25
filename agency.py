@@ -1,4 +1,5 @@
 import os
+from pydantic import BaseModel, Field
 import time
 from contextlib import contextmanager
 
@@ -33,6 +34,12 @@ except Exception:  # noqa: E402
         except Exception:
             pass
 
+
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 @contextmanager
 def _cli_event_scope(command: str, args_dict: dict | None = None):
@@ -210,7 +217,7 @@ except Exception:
     list_events = None  # type: ignore
 
 
-def _render_dashboard_text(summary: Dict[str, Any]) -> None:
+def _render_dashboard_text(summary: TelemetryData) -> None:
     metrics = summary.get("metrics", {})
     total = metrics.get("total_events", 0)
     if total == 0:

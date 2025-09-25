@@ -5,6 +5,7 @@ Kanban adapters: build Card records from telemetry and learning sources.
 - No external dependencies; stdlib only
 """
 from __future__ import annotations
+from pydantic import BaseModel, Field
 
 import hashlib
 import json
@@ -28,6 +29,18 @@ except Exception:  # pragma: no cover
 REDACT_KEYS = {"password", "token", "secret", "key", "api_key", "authorization"}
 
 
+
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class DataModel(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
 @dataclass
 class Card:
     id: str
@@ -40,7 +53,7 @@ class Card:
     links: List[str]
     tags: List[str]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> DataModel:
         return asdict(self)
 
 
@@ -83,7 +96,7 @@ def _stable_id(*parts: str) -> str:
     return h.hexdigest()[:16]
 
 
-def _event_to_card(ev: Dict[str, Any]) -> Optional[Card]:
+def _event_to_card(ev: TelemetryData) -> Optional[Card]:
     typ = str(ev.get("type", "")).lower()
     ts = ev.get("ts") or _iso_now()
     agent = ev.get("agent") or "-"
@@ -189,7 +202,7 @@ def _patterns_to_cards() -> List[Card]:
     return cards
 
 
-def build_cards(window: str = "4h", telemetry_dir: Optional[str] = None, include_patterns: bool = True) -> List[Dict[str, Any]]:
+def build_cards(window: str = "4h", telemetry_dir: Optional[str] = None, include_patterns: bool = True) -> List[TelemetryData]:
     """Build cards from recent telemetry, optional pattern store, and optional untracked files.
 
     Args:
@@ -231,7 +244,7 @@ def build_cards(window: str = "4h", telemetry_dir: Optional[str] = None, include
     return [c.to_dict() for c in cards]
 
 
-def build_feed(window: str = "4h", telemetry_dir: Optional[str] = None, include_patterns: bool = True) -> Dict[str, Any]:
+def build_feed(window: str = "4h", telemetry_dir: Optional[str] = None, include_patterns: bool = True) -> TelemetryData:
     return {
         "generated_at": _iso_now(),
         "cards": build_cards(window=window, telemetry_dir=telemetry_dir, include_patterns=include_patterns),

@@ -12,12 +12,24 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 from agency_swarm.tools import BaseTool as Tool
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from .read import Read
 from .edit import Edit
 from .bash import Bash
 
+
+
+
+class ResponseData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class DataModel(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class ApplyAndVerifyPatch(Tool):
     """
@@ -115,7 +127,7 @@ The fix was correct but could not be committed.
 The Agency has successfully healed itself without human intervention!
 """
 
-    def _run_tests(self) -> Dict[str, Any]:
+    def _run_tests(self) -> ResponseData:
         """Run the test suite and return results."""
         try:
             bash_tool = Bash(
@@ -157,7 +169,7 @@ The Agency has successfully healed itself without human intervention!
         except Exception as e:
             return f"❌ CRITICAL: Could not revert file: {e}"
 
-    def _commit_change(self) -> Dict[str, Any]:
+    def _commit_change(self) -> DataModel:
         """Commit the successful fix."""
         try:
             # Stage the changed file

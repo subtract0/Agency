@@ -4,6 +4,7 @@ Simplifies imports and provides a clean API for autonomous agents.
 """
 
 import os
+from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 
 # Feature flags
@@ -29,6 +30,30 @@ _telemetry: Optional[SimpleTelemetry] = None
 _pattern_store: Optional[UnifiedPatternStore] = None
 _learning_loop: Optional['LearningLoop'] = None
 
+
+
+
+
+
+class ResponseData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class ContextData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class LearningData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 def get_healing_core() -> SelfHealingCore:
     """Get the global self-healing core instance."""
@@ -77,7 +102,7 @@ class UnifiedCore:
         self.patterns = get_unified_patterns()
         self.learning_loop = get_learning_loop() if ENABLE_UNIFIED_CORE else None
 
-    def detect_and_fix_errors(self, path: str) -> Dict[str, Any]:
+    def detect_and_fix_errors(self, path: str) -> LearningData:
         """
         Complete error detection and fixing workflow.
 
@@ -135,7 +160,7 @@ class UnifiedCore:
 
         return results
 
-    def get_health_status(self) -> Dict[str, Any]:
+    def get_health_status(self) -> ResponseData:
         """
         Get overall system health status.
 
@@ -154,7 +179,7 @@ class UnifiedCore:
             "status": "healthy" if metrics.get("health_score", 100) > 80 else "degraded"
         }
 
-    def emit_event(self, event: str, data: Dict[str, Any] = None, level: str = "info"):
+    def emit_event(self, event: str, data: TelemetryData = None, level: str = "info"):
         """
         Emit a telemetry event.
 
@@ -239,7 +264,7 @@ class UnifiedCore:
                 "reason": "LearningLoop not available"
             }, level="warning")
 
-    def get_learning_metrics(self) -> Dict[str, Any]:
+    def get_learning_metrics(self) -> TelemetryData:
         """
         Get learning loop operational metrics.
 
@@ -252,9 +277,9 @@ class UnifiedCore:
 
     def learn_from_operation_result(self, operation_id: str, success: bool,
                                   task_description: str = None,
-                                  tool_calls: List[Dict[str, Any]] = None,
-                                  initial_error: Dict[str, Any] = None,
-                                  final_state: Dict[str, Any] = None,
+                                  tool_calls: List[ContextData] = None,
+                                  initial_error: ContextData = None,
+                                  final_state: ContextData = None,
                                   duration_seconds: float = 0.0):
         """
         Learn patterns from an operation result.

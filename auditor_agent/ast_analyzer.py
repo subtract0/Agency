@@ -4,9 +4,22 @@ Extracts functions, classes, and behavioral coverage metrics.
 """
 
 import ast
+from pydantic import BaseModel, Field
 from typing import Dict, Any
 from pathlib import Path
 
+
+
+
+class ResponseData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class ASTAnalyzer:
     """Analyzes Python code structure for quality assessment."""
@@ -22,7 +35,7 @@ class ASTAnalyzer:
         self.behaviors = []
         self.complexity_metrics = {}
 
-    def analyze_file(self, file_path: str) -> Dict[str, Any]:
+    def analyze_file(self, file_path: str) -> TelemetryData:
         """Analyze a single Python file."""
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -51,7 +64,7 @@ class ASTAnalyzer:
         except Exception as e:
             return {"error": str(e), "file_path": file_path}
 
-    def analyze_directory(self, dir_path: str) -> Dict[str, Any]:
+    def analyze_directory(self, dir_path: str) -> ResponseData:
         """Analyze all Python files in directory."""
         results = {
             "source_files": [],

@@ -23,6 +23,7 @@ Main Exports:
 """
 
 import os
+from pydantic import BaseModel, Field
 import asyncio
 import threading
 import logging
@@ -64,6 +65,18 @@ from learning_loop.autonomous_triggers import (
 # Configure logging for learning loop
 logger = logging.getLogger('learning_loop')
 
+
+
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class LearningData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class LearningLoop:
     """
@@ -139,7 +152,7 @@ class LearningLoop:
             ]
         })
 
-    def _load_config(self, config_path: Optional[str] = None) -> Dict[str, Any]:
+    def _load_config(self, config_path: Optional[str] = None) -> LearningData:
         """Load learning loop configuration from YAML file."""
         if config_path is None:
             config_path = "learning_config.yaml"
@@ -304,7 +317,7 @@ class LearningLoop:
             # Force stop
             self.is_running = False
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> TelemetryData:
         """
         Get comprehensive learning loop metrics.
 

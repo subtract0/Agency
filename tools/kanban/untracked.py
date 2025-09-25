@@ -8,6 +8,7 @@ Untracked learning ingestion: discover useful notes from allowlisted paths.
 - Privacy: redacts likely secrets from summaries
 """
 from __future__ import annotations
+from pydantic import BaseModel, Field
 
 import glob
 import hashlib
@@ -22,6 +23,12 @@ DENY_DIRS = {".git", ".venv", "venv", "env", "node_modules", "secrets", "secret"
 DEFAULT_ALLOWLIST = ["notes/**/*.md", "scratch/**/*.txt"]
 MAX_BYTES = 32_000  # cap reads for safety
 
+
+
+class LearningData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 def _is_denied(path: Path) -> bool:
     parts = set(p.lower() for p in path.parts)
@@ -48,7 +55,7 @@ def _read_snippet(fp: Path) -> str:
         return ""
 
 
-def discover_untracked_cards() -> List[Dict[str, Any]]:
+def discover_untracked_cards() -> List[LearningData]:
     # Check flag
     if os.getenv("LEARNING_UNTRACKED", "false").lower() != "true":
         return []

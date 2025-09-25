@@ -4,10 +4,23 @@ Single entry point for all file modification operations.
 """
 
 import os
+from pydantic import BaseModel, Field
 import json
 from typing import List, Dict, Any, Optional, Union
 from pathlib import Path
 
+
+
+
+class ResponseData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class DataModel(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class UnifiedEdit:
     """
@@ -220,7 +233,7 @@ class UnifiedEdit:
         file_path: str,
         old_string: str,
         new_string: str
-    ) -> Dict[str, Any]:
+    ) -> DataModel:
         """
         Validate an edit before applying it.
 
@@ -280,8 +293,8 @@ class UnifiedEdit:
 
     def batch_edit(
         self,
-        operations: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        operations: List[ResponseData]
+    ) -> List[ResponseData]:
         """
         Perform batch edit operations across multiple files.
 

@@ -3,6 +3,7 @@ Base pattern extractor interface and common functionality.
 """
 
 from abc import ABC, abstractmethod
+from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 import logging
 from datetime import datetime
@@ -11,6 +12,12 @@ from ..coding_pattern import CodingPattern, ProblemContext, SolutionApproach, Ef
 
 logger = logging.getLogger(__name__)
 
+
+
+class PatternData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class BasePatternExtractor(ABC):
     """Base class for all pattern extractors."""
@@ -137,7 +144,7 @@ class BasePatternExtractor(ABC):
             logger.error(f"{self.source_name}: Pattern extraction failed: {e}")
             return []
 
-    def get_extraction_stats(self) -> Dict[str, Any]:
+    def get_extraction_stats(self) -> PatternData:
         """Get statistics about extracted patterns."""
         if not self.extracted_patterns:
             return {"total_patterns": 0, "message": "No patterns extracted yet"}
@@ -196,7 +203,7 @@ class BasePatternExtractor(ABC):
 
         return filtered_patterns
 
-    def analyze_success_factors(self) -> Dict[str, Any]:
+    def analyze_success_factors(self) -> PatternData:
         """Analyze what makes patterns successful."""
         if not self.extracted_patterns:
             return {"message": "No patterns to analyze"}

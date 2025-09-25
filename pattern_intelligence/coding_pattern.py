@@ -7,11 +7,18 @@ that enables semantic search, application, and continuous improvement.
 """
 
 from dataclasses import dataclass, field
+from pydantic import BaseModel, Field
 from typing import Any, Dict, List, Optional, Union
 from datetime import datetime
 import hashlib
 import json
 
+
+
+class PatternData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 @dataclass
 class ProblemContext:
@@ -147,7 +154,7 @@ class CodingPattern:
 
         return f"{context_text} {solution_text} {' '.join(outcome_parts)} {tag_text}"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> PatternData:
         """Convert to dictionary for storage."""
         return {
             "pattern_id": self.metadata.pattern_id,
@@ -194,7 +201,7 @@ class CodingPattern:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "CodingPattern":
+    def from_dict(cls, data: PatternData) -> "CodingPattern":
         """Create CodingPattern from dictionary."""
         context_data = data["context"]
         solution_data = data["solution"]

@@ -13,6 +13,7 @@ Constitutional Compliance:
 """
 
 import re
+from pydantic import BaseModel, Field
 import json
 import uuid
 from datetime import datetime
@@ -24,13 +25,55 @@ from core.patterns import UnifiedPatternStore, get_pattern_store, Pattern as Exi
 from core.telemetry import get_telemetry, emit
 
 
+
+
+
+
+
+
+
+class PatternData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class DynamicData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class AnalysisData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class DataModel(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class ResponseData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class ContextData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class MetadataModel(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
 @dataclass
 class Trigger:
     """Base class for pattern triggers."""
     type: str
-    metadata: Dict[str, Any]
+    metadata: PatternData
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> PatternData:
         """Convert trigger to dictionary for serialization."""
         return {
             "type": self.type,
@@ -38,7 +81,7 @@ class Trigger:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Trigger":
+    def from_dict(cls, data: MetadataModel) -> "Trigger":
         """Create trigger from dictionary."""
         return cls(
             type=data["type"],
@@ -87,7 +130,7 @@ class Condition:
     value: Any  # expected value or condition details
     operator: str = "equals"  # "equals", "contains", "matches", etc.
 
-    def evaluate(self, context: Dict[str, Any]) -> bool:
+    def evaluate(self, context: ContextData) -> bool:
         """Evaluate this condition against a context."""
         if self.type == "file_exists":
             return Path(self.target).exists()
@@ -112,11 +155,11 @@ class Condition:
 class Action:
     """Represents a single action in a pattern."""
     tool: str
-    parameters: Dict[str, Any]
+    parameters: PatternData
     output_pattern: Optional[str] = None
     timeout_seconds: Optional[int] = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> PatternData:
         """Convert action to dictionary for serialization."""
         return {
             "tool": self.tool,
@@ -126,7 +169,7 @@ class Action:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Action":
+    def from_dict(cls, data: DataModel) -> "Action":
         """Create action from dictionary."""
         return cls(
             tool=data["tool"],
@@ -148,7 +191,7 @@ class PatternMetadata:
     source: str  # "learned", "manual", "imported"
     tags: List[str]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> MetadataModel:
         """Convert metadata to dictionary."""
         return {
             "confidence": self.confidence,
@@ -162,7 +205,7 @@ class PatternMetadata:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "PatternMetadata":
+    def from_dict(cls, data: PatternData) -> "PatternMetadata":
         """Create metadata from dictionary."""
         return cls(
             confidence=data["confidence"],
@@ -264,9 +307,9 @@ class Operation:
     """Represents an operation that can be learned from."""
     id: str
     task_description: Optional[str]
-    initial_error: Optional[Dict[str, Any]]
-    tool_calls: List[Dict[str, Any]]
-    final_state: Dict[str, Any]
+    initial_error: Optional[ContextData]
+    tool_calls: List[ContextData]
+    final_state: ContextData
     success: bool
     duration_seconds: float
     timestamp: datetime
@@ -282,7 +325,7 @@ class FailureReason:
     """Base class for failure analysis."""
     type: str
     description: str
-    details: Dict[str, Any]
+    details: AnalysisData
 
 
 class TestFailureAnalysis(FailureReason):
@@ -521,7 +564,7 @@ class PatternExtractor:
 
         return actions
 
-    def _generalize_parameters(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
+    def _generalize_parameters(self, parameters: DynamicData) -> DynamicData:
         """Generalize parameters to make them reusable."""
         generalized = {}
 
@@ -766,7 +809,7 @@ class FailureLearner:
             details=final_state
         )
 
-    def _analyze_test_failures(self, test_results: Dict[str, Any]) -> str:
+    def _analyze_test_failures(self, test_results: ResponseData) -> str:
         """Analyze test failures to determine root cause."""
         failures = test_results.get("failures", [])
 

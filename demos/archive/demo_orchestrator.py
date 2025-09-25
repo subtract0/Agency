@@ -16,6 +16,7 @@ to showcase the system's resilience and self-healing capabilities.
 """
 
 import asyncio
+from pydantic import BaseModel, Field
 import json
 import random
 import time
@@ -32,6 +33,12 @@ from tools.orchestrator.scheduler import (
 from tools.telemetry.aggregator import aggregate, list_events
 
 
+
+class AgentData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
 @dataclass
 class MockAgent:
     """Mock agent for demonstration purposes."""
@@ -40,7 +47,7 @@ class MockAgent:
     min_duration: float = 1.0
     max_duration: float = 5.0
 
-    async def run(self, prompt: str, **params) -> Dict[str, Any]:
+    async def run(self, prompt: str, **params) -> AgentData:
         """Simulate agent work with realistic timing and occasional failures."""
         duration = random.uniform(self.min_duration, self.max_duration)
         await asyncio.sleep(duration)

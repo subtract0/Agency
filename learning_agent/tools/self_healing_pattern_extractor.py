@@ -4,7 +4,7 @@ Self-Healing Pattern Extraction Tool for LearningAgent.
 Extracts successful patterns and strategies from self-healing system actions.
 """
 from agency_swarm.tools import BaseTool
-from pydantic import Field
+from pydantic import BaseModel, Field
 import json
 import os
 from datetime import datetime, timedelta
@@ -14,6 +14,30 @@ from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
+
+
+
+
+
+class PatternData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class LearningData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class DataModel(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class SelfHealingPatternExtractor(BaseTool):
     """
@@ -112,7 +136,7 @@ class SelfHealingPatternExtractor(BaseTool):
         else:
             return timedelta(days=7)  # Default to 7 days
 
-    def _collect_self_healing_data(self, time_boundary: datetime) -> Dict[str, Any]:
+    def _collect_self_healing_data(self, time_boundary: datetime) -> DataModel:
         """Collect self-healing data from various sources."""
         data_collection = {
             'events': [],
@@ -147,7 +171,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return data_collection
 
-    def _collect_from_logs(self, time_boundary: datetime) -> List[Dict[str, Any]]:
+    def _collect_from_logs(self, time_boundary: datetime) -> List[TelemetryData]:
         """Collect self-healing events from log files."""
         events = []
         logs_dir = os.path.join(os.getcwd(), "logs", "self_healing")
@@ -171,7 +195,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return events
 
-    def _collect_from_telemetry(self, time_boundary: datetime) -> List[Dict[str, Any]]:
+    def _collect_from_telemetry(self, time_boundary: datetime) -> List[TelemetryData]:
         """Collect self-healing events from telemetry data."""
         events = []
         telemetry_dir = os.path.join(os.getcwd(), "logs", "telemetry")
@@ -198,7 +222,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return events
 
-    def _collect_from_agent_memory(self, time_boundary: datetime) -> List[Dict[str, Any]]:
+    def _collect_from_agent_memory(self, time_boundary: datetime) -> List[TelemetryData]:
         """Collect self-healing events from agent memory/context."""
         events = []
 
@@ -222,7 +246,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return events
 
-    def _parse_log_file(self, filepath: str, time_boundary: datetime) -> List[Dict[str, Any]]:
+    def _parse_log_file(self, filepath: str, time_boundary: datetime) -> List[TelemetryData]:
         """Parse log file for self-healing events."""
         events = []
 
@@ -248,7 +272,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return events
 
-    def _parse_structured_log_line(self, line: str, time_boundary: datetime) -> Optional[Dict[str, Any]]:
+    def _parse_structured_log_line(self, line: str, time_boundary: datetime) -> Optional[TelemetryData]:
         """Parse structured log line for self-healing information."""
         try:
             # Look for timestamp
@@ -300,7 +324,7 @@ class SelfHealingPatternExtractor(BaseTool):
         except Exception:
             return None
 
-    def _extract_healing_from_session(self, filepath: str) -> List[Dict[str, Any]]:
+    def _extract_healing_from_session(self, filepath: str) -> List[TelemetryData]:
         """Extract self-healing events from session transcript."""
         events = []
 
@@ -326,7 +350,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return events
 
-    def _is_self_healing_event(self, event: Dict[str, Any], time_boundary: datetime) -> bool:
+    def _is_self_healing_event(self, event: TelemetryData, time_boundary: datetime) -> bool:
         """Check if event is related to self-healing and within time window."""
         # Check timestamp
         timestamp_str = event.get('timestamp')
@@ -344,7 +368,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return any(keyword in text_content for keyword in healing_keywords)
 
-    def _is_successful_event(self, event: Dict[str, Any]) -> bool:
+    def _is_successful_event(self, event: TelemetryData) -> bool:
         """Determine if an event represents a successful self-healing action."""
         status = event.get('status', '').lower()
         if status in ['success', 'successful', 'resolved', 'completed']:
@@ -356,7 +380,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return any(indicator in content for indicator in success_indicators)
 
-    def _extract_successful_patterns(self, data_collection: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _extract_successful_patterns(self, data_collection: TelemetryData) -> List[TelemetryData]:
         """Extract patterns from successful self-healing events."""
         patterns = []
         events = data_collection['events']
@@ -383,7 +407,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return patterns
 
-    def _extract_trigger_action_patterns(self, events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _extract_trigger_action_patterns(self, events: List[TelemetryData]) -> List[TelemetryData]:
         """Extract trigger-action correlation patterns."""
         patterns = []
 
@@ -422,7 +446,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return patterns
 
-    def _extract_context_patterns(self, events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _extract_context_patterns(self, events: List[TelemetryData]) -> List[TelemetryData]:
         """Extract context-based success patterns."""
         patterns = []
 
@@ -466,7 +490,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return patterns
 
-    def _extract_timing_patterns(self, events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _extract_timing_patterns(self, events: List[TelemetryData]) -> List[TelemetryData]:
         """Extract timing-based patterns."""
         patterns = []
 
@@ -513,7 +537,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return patterns
 
-    def _extract_sequence_patterns(self, events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _extract_sequence_patterns(self, events: List[TelemetryData]) -> List[TelemetryData]:
         """Extract sequential action patterns."""
         patterns = []
 
@@ -566,7 +590,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return patterns
 
-    def _validate_patterns(self, patterns: List[Dict[str, Any]], data_collection: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _validate_patterns(self, patterns: List[PatternData], data_collection: PatternData) -> List[PatternData]:
         """Validate and score patterns based on confidence and effectiveness."""
         validated_patterns = []
 
@@ -589,7 +613,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return validated_patterns
 
-    def _generate_actionable_insights(self, patterns: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _generate_actionable_insights(self, patterns: List[LearningData]) -> List[LearningData]:
         """Generate actionable insights from validated patterns."""
         insights = []
 
@@ -658,7 +682,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return insights
 
-    def _create_learning_objects(self, patterns: List[Dict[str, Any]], insights: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _create_learning_objects(self, patterns: List[LearningData], insights: List[LearningData]) -> List[LearningData]:
         """Create structured learning objects for VectorStore storage."""
         learning_objects = []
 
@@ -703,7 +727,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return learning_objects
 
-    def _create_actionable_insight_for_pattern(self, pattern: Dict[str, Any]) -> str:
+    def _create_actionable_insight_for_pattern(self, pattern: LearningData) -> str:
         """Create actionable insight text for a pattern."""
         pattern_type = pattern['pattern_type']
 
@@ -718,7 +742,7 @@ class SelfHealingPatternExtractor(BaseTool):
         else:
             return f"Apply this {pattern_type} pattern when similar conditions are detected"
 
-    def _extract_pattern_triggers(self, pattern: Dict[str, Any]) -> List[str]:
+    def _extract_pattern_triggers(self, pattern: PatternData) -> List[str]:
         """Extract trigger information from pattern."""
         triggers = []
         if 'trigger' in pattern:
@@ -729,7 +753,7 @@ class SelfHealingPatternExtractor(BaseTool):
             triggers.append(f"time_period_{pattern['time_period']}")
         return triggers or ['pattern_conditions_met']
 
-    def _extract_pattern_actions(self, pattern: Dict[str, Any]) -> List[str]:
+    def _extract_pattern_actions(self, pattern: PatternData) -> List[str]:
         """Extract action information from pattern."""
         actions = []
         if 'action' in pattern:
@@ -738,7 +762,7 @@ class SelfHealingPatternExtractor(BaseTool):
             actions.extend(pattern['sequence'].split(' -> '))
         return actions or ['apply_pattern']
 
-    def _extract_pattern_conditions(self, pattern: Dict[str, Any]) -> List[str]:
+    def _extract_pattern_conditions(self, pattern: PatternData) -> List[str]:
         """Extract condition information from pattern."""
         conditions = []
         if 'success_rate' in pattern:
@@ -747,7 +771,7 @@ class SelfHealingPatternExtractor(BaseTool):
             conditions.append(f"occurrences >= {pattern['occurrences']}")
         return conditions or ['pattern_validation_passed']
 
-    def _generate_application_criteria_for_pattern(self, pattern: Dict[str, Any]) -> List[str]:
+    def _generate_application_criteria_for_pattern(self, pattern: PatternData) -> List[str]:
         """Generate application criteria for pattern."""
         criteria = [
             f"Pattern confidence >= {pattern['overall_confidence']:.2f}",
@@ -765,7 +789,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return criteria
 
-    def _generate_recommendations(self, patterns: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _generate_recommendations(self, patterns: List[PatternData]) -> List[PatternData]:
         """Generate specific recommendations based on patterns."""
         recommendations = []
 

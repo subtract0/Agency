@@ -7,12 +7,25 @@ Applies environment-level hint actions from LearningHintRegistry in a conservati
 - Confidence threshold via RUNTIME_HINTS_MIN_CONF (default 0.5)
 """
 from __future__ import annotations
+from pydantic import BaseModel, Field
 
 import os
 from typing import Any, Dict, List, Tuple
 
 from .hints import LearningHintRegistry, Hint
 
+
+
+
+class DataModel(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class LearningData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 def _apply_env(env: ConfigData, key: str, value: str) -> Tuple[str, str, str]:
     """Apply env var with support for *_APPEND convention."""
@@ -29,10 +42,10 @@ def _apply_env(env: ConfigData, key: str, value: str) -> Tuple[str, str, str]:
         return (key, "kept", env[key])
 
 
-def apply_env_hints_from_registry(registry: LearningHintRegistry, env: ConfigData | None = None) -> List[Dict[str, Any]]:
+def apply_env_hints_from_registry(registry: LearningHintRegistry, env: ConfigData | None = None) -> List[LearningData]:
     env = env if env is not None else os.environ
     min_conf = float(os.getenv("RUNTIME_HINTS_MIN_CONF", "0.5"))
-    applied: List[Dict[str, Any]] = []
+    applied: List[DataModel] = []
 
     for h in registry.all():
         try:

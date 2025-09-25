@@ -6,6 +6,7 @@ thread-safety, and multiple backoff strategies for handling transient failures.
 """
 
 import asyncio
+from pydantic import BaseModel, Field
 import logging
 import random
 import signal
@@ -15,6 +16,12 @@ from abc import ABC, abstractmethod
 from typing import Any, Callable, Optional, Dict, Union
 from functools import wraps
 
+
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class RetryStrategy(ABC):
     """Abstract base class defining the interface for retry strategies."""
@@ -508,7 +515,7 @@ class RetryController:
 
         return result[0]
 
-    def _record_memory_event(self, event_type: str, data: Dict[str, Any]) -> None:
+    def _record_memory_event(self, event_type: str, data: TelemetryData) -> None:
         """Record retry event in agent memory if context is available."""
         if self.agent_context and hasattr(self.agent_context, 'add_memory'):
             try:

@@ -6,6 +6,7 @@ autonomous learning and healing responses, as specified in SPEC-LEARNING-001.
 """
 
 import os
+from pydantic import BaseModel, Field
 import re
 import json
 import asyncio
@@ -29,14 +30,20 @@ except Exception:
     _ERROR_MONITOR_REGISTRY = set()
 
 
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
 @dataclass
 class Event:
     """Base event class for all detected events."""
     type: str
     timestamp: datetime
-    metadata: Dict[str, Any]
+    metadata: TelemetryData
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> TelemetryData:
         """Convert event to dictionary for serialization."""
         return {
             "type": self.type,
@@ -45,7 +52,7 @@ class Event:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Event":
+    def from_dict(cls, data: TelemetryData) -> "Event":
         """Create event from dictionary."""
         return cls(
             type=data["type"],

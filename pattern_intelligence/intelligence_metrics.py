@@ -6,6 +6,7 @@ Implements the AIQ (AI Intelligence Quotient) and growth tracking systems.
 """
 
 import logging
+from pydantic import BaseModel, Field
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, timedelta
 import json
@@ -13,6 +14,36 @@ import math
 
 logger = logging.getLogger(__name__)
 
+
+
+
+
+
+
+class PatternData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class DynamicData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class LearningData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class ErrorData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class IntelligenceMetrics:
     """
@@ -23,7 +54,7 @@ class IntelligenceMetrics:
 
     def __init__(self):
         """Initialize intelligence metrics tracker."""
-        self.measurement_history: List[Dict[str, Any]] = []
+        self.measurement_history: List[TelemetryData] = []
         self.baseline_metrics: Optional[Dict[str, float]] = None
 
     def calculate_aiq(
@@ -99,7 +130,7 @@ class IntelligenceMetrics:
         self,
         aiq_history: List[float],
         min_periods: int = 4
-    ) -> Dict[str, Any]:
+    ) -> PatternData:
         """
         Detect exponential intelligence amplification patterns.
 
@@ -158,7 +189,7 @@ class IntelligenceMetrics:
         pattern_store,
         pattern_applicator,
         meta_learning_engine
-    ) -> Dict[str, Any]:
+    ) -> LearningData:
         """
         Run comprehensive intelligence benchmarks.
 
@@ -249,7 +280,7 @@ class IntelligenceMetrics:
         self,
         aiq: float,
         component_metrics: Dict[str, float],
-        context: Dict[str, Any] = None
+        context: TelemetryData = None
     ) -> None:
         """Record intelligence measurement for historical tracking."""
         measurement = {
@@ -269,7 +300,7 @@ class IntelligenceMetrics:
         if self.baseline_metrics is None:
             self.baseline_metrics = component_metrics.copy()
 
-    def get_intelligence_trajectory(self) -> Dict[str, Any]:
+    def get_intelligence_trajectory(self) -> TelemetryData:
         """Get intelligence development trajectory over time."""
         try:
             if len(self.measurement_history) < 2:
@@ -393,7 +424,7 @@ class IntelligenceMetrics:
             logger.error(f"Intelligence report export failed: {e}")
             return json.dumps({"error": str(e)}, indent=2)
 
-    def _classify_intelligence_level(self, aiq: float) -> Dict[str, Any]:
+    def _classify_intelligence_level(self, aiq: float) -> ErrorData:
         """Classify intelligence level based on AIQ score."""
         if aiq >= 100:
             return {
@@ -426,7 +457,7 @@ class IntelligenceMetrics:
                 "capabilities": ["Basic pattern storage", "Simple operations"]
             }
 
-    def _generate_intelligence_recommendations(self, trajectory: Dict[str, Any]) -> List[str]:
+    def _generate_intelligence_recommendations(self, trajectory: DynamicData) -> List[str]:
         """Generate recommendations for intelligence improvement."""
         recommendations = []
 

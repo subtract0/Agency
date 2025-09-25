@@ -2,13 +2,25 @@
 Analyze session transcripts to extract patterns and insights.
 """
 from agency_swarm.tools import BaseTool
-from pydantic import Field
+from pydantic import BaseModel, Field
 import json
 import os
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 from datetime import datetime
 
+
+
+
+class MemoryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class PatternData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class AnalyzeSession(BaseTool):
     """
@@ -78,7 +90,7 @@ class AnalyzeSession(BaseTool):
         except Exception as e:
             return f"Error analyzing session: {str(e)}"
 
-    def _analyze_tool_usage(self, session_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _analyze_tool_usage(self, session_data: PatternData) -> PatternData:
         """Analyze tool usage patterns from session data."""
         entries = session_data.get("entries", [])
         tool_counts = {}
@@ -116,7 +128,7 @@ class AnalyzeSession(BaseTool):
             }
         }
 
-    def _analyze_error_patterns(self, session_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _analyze_error_patterns(self, session_data: PatternData) -> PatternData:
         """Analyze error patterns and resolution strategies."""
         entries = session_data.get("entries", [])
         errors = []
@@ -155,7 +167,7 @@ class AnalyzeSession(BaseTool):
             }
         }
 
-    def _analyze_workflow_patterns(self, session_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _analyze_workflow_patterns(self, session_data: PatternData) -> PatternData:
         """Analyze successful workflow sequences."""
         entries = session_data.get("entries", [])
         workflows = []
@@ -189,7 +201,7 @@ class AnalyzeSession(BaseTool):
             }
         }
 
-    def _analyze_agent_interactions(self, session_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _analyze_agent_interactions(self, session_data: PatternData) -> PatternData:
         """Analyze patterns in agent-to-agent interactions."""
         entries = session_data.get("entries", [])
         interactions = {}
@@ -208,7 +220,7 @@ class AnalyzeSession(BaseTool):
             }
         }
 
-    def _analyze_task_outcomes(self, session_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _analyze_task_outcomes(self, session_data: MemoryData) -> MemoryData:
         """Analyze task completion outcomes and success factors."""
         entries = session_data.get("entries", [])
         outcomes = {"success": 0, "failure": 0, "partial": 0}
@@ -233,7 +245,7 @@ class AnalyzeSession(BaseTool):
             }
         }
 
-    def _analyze_memory_usage(self, session_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _analyze_memory_usage(self, session_data: PatternData) -> PatternData:
         """Analyze memory storage and retrieval patterns."""
         entries = session_data.get("entries", [])
         memory_ops = {"store": 0, "retrieve": 0, "search": 0}
@@ -253,7 +265,7 @@ class AnalyzeSession(BaseTool):
             }
         }
 
-    def _find_resolution_pattern(self, entries: List[Dict[str, Any]], error_index: int) -> Optional[Dict[str, Any]]:
+    def _find_resolution_pattern(self, entries: List[PatternData], error_index: int) -> Optional[PatternData]:
         """Find resolution patterns after an error."""
         # Look at next 3 entries for resolution
         resolution_window = entries[error_index + 1:error_index + 4]

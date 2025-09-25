@@ -7,6 +7,7 @@ with real-time metrics and step-by-step explanations.
 """
 
 import os
+from pydantic import BaseModel, Field
 import sys
 import time
 import json
@@ -22,6 +23,12 @@ from pattern_intelligence.intelligence_metrics import IntelligenceMetrics
 from pattern_intelligence.meta_learning import MetaLearningEngine
 
 
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
 class LearningObserver:
     """Real-time learning observation and measurement."""
 
@@ -30,7 +37,7 @@ class LearningObserver:
         self.metrics_history = []
         self.current_cycle = 0
 
-    def record_learning_event(self, event_type: str, data: Dict[str, Any]):
+    def record_learning_event(self, event_type: str, data: TelemetryData):
         """Record a learning event with timestamp."""
         event = {
             "cycle": self.current_cycle,
@@ -90,7 +97,7 @@ def run_learning_cycle(
     meta_learning: MetaLearningEngine,
     intelligence_metrics: IntelligenceMetrics,
     observer: LearningObserver
-) -> Dict[str, Any]:
+) -> TelemetryData:
     """Run one complete learning cycle with detailed observation."""
 
     observer.start_cycle(cycle_number)

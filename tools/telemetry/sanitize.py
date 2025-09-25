@@ -1,4 +1,5 @@
 from __future__ import annotations
+from pydantic import BaseModel, Field
 
 import copy
 import re
@@ -30,6 +31,12 @@ _SENSITIVE_KEYS = {
 _REPLACEMENT = "[REDACTED]"
 
 
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
 def _redact_str(s: str) -> str:
     out = s
     for pat in _SECRET_VALUE_PATTERNS:
@@ -47,7 +54,7 @@ def _redact_any(val: Any) -> Any:
     return val
 
 
-def redact_event(event: Dict[str, Any]) -> Dict[str, Any]:
+def redact_event(event: TelemetryData) -> TelemetryData:
     """Redact sensitive material from a telemetry event.
 
     Rules:
@@ -61,7 +68,7 @@ def redact_event(event: Dict[str, Any]) -> Dict[str, Any]:
 
     def _walk(obj: Any) -> Any:
         if isinstance(obj, dict):
-            new: Dict[str, Any] = {}
+            new: TelemetryData = {}
             for k, v in obj.items():
                 if k.lower() in _SENSITIVE_KEYS:
                     new[k] = _REPLACEMENT

@@ -14,6 +14,7 @@ Constitutional Compliance:
 """
 
 import asyncio
+from pydantic import BaseModel, Field
 import re
 import json
 from datetime import datetime, timedelta
@@ -28,6 +29,18 @@ from core.patterns import UnifiedPatternStore, get_pattern_store, Pattern
 from core.telemetry import get_telemetry, emit
 
 
+
+
+class PatternData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
 @dataclass
 class HealingResult:
     """Result of an autonomous healing attempt."""
@@ -37,7 +50,7 @@ class HealingResult:
     pattern_used: Optional[str] = None
     error_details: Optional[str] = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> TelemetryData:
         """Convert result to dictionary for telemetry."""
         return asdict(self)
 
@@ -49,7 +62,7 @@ class PatternMatch:
     score: float
     confidence: float
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> PatternData:
         """Convert match to dictionary for logging."""
         return {
             "pattern_id": self.pattern.id,

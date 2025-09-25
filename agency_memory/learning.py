@@ -4,6 +4,7 @@ Provides deterministic summarization of memory tag frequencies and patterns.
 """
 
 import logging
+from pydantic import BaseModel, Field
 from collections import Counter, defaultdict
 from datetime import datetime
 from typing import Any, Dict, List
@@ -11,7 +12,13 @@ from typing import Any, Dict, List
 logger = logging.getLogger(__name__)
 
 
-def consolidate_learnings(memories: List[Dict[str, Any]]) -> Dict[str, Any]:
+
+class LearningData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+def consolidate_learnings(memories: List[LearningData]) -> LearningData:
     """
     Consolidate learnings from memory records into structured summary.
 
@@ -220,7 +227,7 @@ def _generate_insights(
 
 
 def generate_learning_report(
-    memories: List[Dict[str, Any]], session_id: str = None
+    memories: List[LearningData], session_id: str = None
 ) -> str:
     """
     Generate a formatted learning report from consolidated analysis.

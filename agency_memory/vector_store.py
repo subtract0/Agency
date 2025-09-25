@@ -6,6 +6,7 @@ Lightweight implementation with optional embeddings support.
 """
 
 import logging
+from pydantic import BaseModel, Field
 import json
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
@@ -14,11 +15,29 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 
+
+
+
+class ResponseData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class MemoryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class DataModel(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
 @dataclass
 class SimilarityResult:
     """Result from similarity search with score and metadata."""
 
-    memory: Dict[str, Any]
+    memory: MemoryData
     similarity_score: float
     search_type: str  # 'semantic', 'keyword', or 'hybrid'
 
@@ -43,7 +62,7 @@ class VectorStore:
         """
         self._embeddings: Dict[str, List[float]] = {}
         self._memory_texts: Dict[str, str] = {}
-        self._memory_records: Dict[str, Dict[str, Any]] = {}
+        self._memory_records: Dict[str, MemoryData] = {}
         self._embedding_provider = embedding_provider
         self._embedding_function = None
 
@@ -123,7 +142,7 @@ class VectorStore:
         except ImportError:
             raise ImportError("openai not available. Install with: pip install openai")
 
-    def add_memory(self, memory_key: str, memory_content: Dict[str, Any]) -> None:
+    def add_memory(self, memory_key: str, memory_content: MemoryData) -> None:
         """
         Add memory to vector store for search.
 
@@ -147,7 +166,7 @@ class VectorStore:
             except Exception as e:
                 logger.warning(f"Failed to generate embedding for {memory_key}: {e}")
 
-    def _extract_searchable_text(self, memory: Dict[str, Any]) -> str:
+    def _extract_searchable_text(self, memory: MemoryData) -> str:
         """
         Extract searchable text from memory record.
 
@@ -180,7 +199,7 @@ class VectorStore:
         return " ".join(text_parts)
 
     def semantic_search(
-        self, query: str, memories: List[Dict[str, Any]], top_k: int = 10
+        self, query: str, memories: List[ResponseData], top_k: int = 10
     ) -> List[SimilarityResult]:
         """
         Perform semantic similarity search.
@@ -239,7 +258,7 @@ class VectorStore:
             return self.keyword_search(query, memories, top_k)
 
     def keyword_search(
-        self, query: str, memories: List[Dict[str, Any]], top_k: int = 10
+        self, query: str, memories: List[ResponseData], top_k: int = 10
     ) -> List[SimilarityResult]:
         """
         Perform keyword-based search as fallback.
@@ -291,7 +310,7 @@ class VectorStore:
     def hybrid_search(
         self,
         query: str,
-        memories: List[Dict[str, Any]],
+        memories: List[ResponseData],
         top_k: int = 10,
         semantic_weight: float = 0.7,
     ) -> List[SimilarityResult]:
@@ -383,7 +402,7 @@ class VectorStore:
 
         return dot_product / (magnitude1 * magnitude2)
 
-    def search(self, query: str, namespace: Optional[str] = None, limit: int = 10) -> List[Dict[str, Any]]:
+    def search(self, query: str, namespace: Optional[str] = None, limit: int = 10) -> List[MemoryData]:
         try:
             memories = list(self._memory_records.values())
             if namespace:
@@ -411,7 +430,7 @@ class VectorStore:
         self._memory_texts.pop(memory_key, None)
         self._memory_records.pop(memory_key, None)
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> MemoryData:
         """
         Get vector store statistics.
 
@@ -502,7 +521,7 @@ class EnhancedSwarmMemoryStore:
         agent_id: str = "default",
         include_shared: bool = True,
         top_k: int = 10,
-    ) -> List[Dict[str, Any]]:
+    ) -> List[DataModel]:
         """
         Combine tag-based and semantic search.
 

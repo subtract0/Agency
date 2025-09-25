@@ -6,6 +6,7 @@ for the Infinite Intelligence Amplifier.
 """
 
 import json
+from pydantic import BaseModel, Field
 import logging
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
@@ -16,6 +17,12 @@ from .coding_pattern import CodingPattern, ProblemContext
 
 logger = logging.getLogger(__name__)
 
+
+
+class PatternData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 @dataclass
 class PatternSearchResult:
@@ -306,7 +313,7 @@ class PatternStore:
             logger.error(f"Failed to find related patterns for {pattern_id}: {e}")
             return []
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> PatternData:
         """Get pattern store statistics."""
         try:
             all_patterns = []

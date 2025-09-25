@@ -10,6 +10,7 @@ Analyzes:
 """
 
 import os
+from pydantic import BaseModel, Field
 import re
 import json
 from typing import List, Dict, Any, Optional
@@ -21,6 +22,18 @@ from ..coding_pattern import CodingPattern, ProblemContext, SolutionApproach, Ef
 
 logger = logging.getLogger(__name__)
 
+
+
+
+class MemoryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class PatternData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class SessionPatternExtractor(BasePatternExtractor):
     """Extract coding patterns from Agency session transcripts."""
@@ -362,7 +375,7 @@ class SessionPatternExtractor(BasePatternExtractor):
 
         return patterns
 
-    def _parse_session_file(self, file_path: str) -> Dict[str, Any]:
+    def _parse_session_file(self, file_path: str) -> PatternData:
         """Parse a session transcript file."""
         session_data = {
             'file_path': file_path,
@@ -428,7 +441,7 @@ class SessionPatternExtractor(BasePatternExtractor):
 
         return session_data
 
-    def _analyze_success_factors(self, successful_tasks: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _analyze_success_factors(self, successful_tasks: List[MemoryData]) -> MemoryData:
         """Analyze common factors in successful tasks."""
         factors = {
             'common_tools': [],
@@ -470,7 +483,7 @@ class SessionPatternExtractor(BasePatternExtractor):
 
         return factors
 
-    def _extract_problem_solving_approach(self, session_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def _extract_problem_solving_approach(self, session_data: MemoryData) -> Optional[MemoryData]:
         """Extract problem-solving approach from session data."""
         content = session_data.get('content', '')
 
@@ -487,7 +500,7 @@ class SessionPatternExtractor(BasePatternExtractor):
 
         return None
 
-    def _extract_handoff_info(self, session_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _extract_handoff_info(self, session_data: MemoryData) -> List[MemoryData]:
         """Extract agent handoff information from session."""
         handoffs = []
         content = session_data.get('content', '')

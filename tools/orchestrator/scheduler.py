@@ -1,4 +1,5 @@
 from __future__ import annotations
+from pydantic import BaseModel, Field
 
 import asyncio
 import dataclasses
@@ -18,12 +19,36 @@ FairnessType = Literal["round_robin", "shortest_first"]
 CancellationType = Literal["cascading", "isolated"]
 
 
+
+
+
+
+class ResponseData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class TaskData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class ErrorData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
 def _telemetry_enabled() -> bool:
     v = str(os.environ.get("AGENCY_TELEMETRY_ENABLED", "1")).strip().lower()
     return v not in {"0", "false", "no"}
 
 
-def _telemetry_emit(event: Dict[str, Any]) -> None:
+def _telemetry_emit(event: TelemetryData) -> None:
     """Append a JSONL telemetry event. Fail-safe and non-blocking best-effort.
 
     Event schema (subset):
@@ -76,7 +101,7 @@ class OrchestrationPolicy:
 class TaskSpec:
     agent_factory: Callable[[AgentContext], Any]
     prompt: str
-    params: Optional[Dict[str, Any]] = None
+    params: Optional[ResponseData] = None
     id: Optional[str] = None
 
 
@@ -88,15 +113,15 @@ class TaskResult:
     started_at: float
     finished_at: float
     attempts: int
-    artifacts: Optional[Dict[str, Any]]
+    artifacts: Optional[ResponseData]
     errors: Optional[List[str]]
 
 
 @dataclasses.dataclass
 class OrchestrationResult:
     tasks: List[TaskResult]
-    metrics: Dict[str, Any]
-    merged: Dict[str, Any]
+    metrics: TelemetryData
+    merged: TelemetryData
 
 
 class _Scheduler:
@@ -169,7 +194,7 @@ class _Scheduler:
                 errors=[f"Agent factory failed: {str(e)}"],
             )
 
-        async def _attempt_once() -> Dict[str, Any]:
+        async def _attempt_once() -> ErrorData:
             # Agents may expose either run(prompt, **params) or run(spec.prompt, **params)
             import inspect
             params = spec.params or {}
@@ -217,7 +242,7 @@ class _Scheduler:
                             usage = artifacts["data"].get("usage")
                             model = artifacts["data"].get("model", model)
 
-                    ev: Dict[str, Any] = {
+                    ev: TaskData = {
                         "type": "task_finished",
                         "id": task_id,
                         "agent": agent_name,

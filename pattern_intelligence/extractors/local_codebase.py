@@ -10,6 +10,7 @@ Analyzes:
 """
 
 import os
+from pydantic import BaseModel, Field
 import re
 import ast
 import json
@@ -23,6 +24,12 @@ from ..coding_pattern import CodingPattern, ProblemContext, SolutionApproach, Ef
 
 logger = logging.getLogger(__name__)
 
+
+
+class PatternData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class LocalCodebaseExtractor(BasePatternExtractor):
     """Extract coding patterns from the local codebase."""
@@ -407,7 +414,7 @@ class LocalCodebaseExtractor(BasePatternExtractor):
 
         return self.create_pattern(context, solution, outcome, "memory_architecture", ["architecture", "memory"])
 
-    def _analyze_tool_implementations(self, tools_dir: str) -> Dict[str, Any]:
+    def _analyze_tool_implementations(self, tools_dir: str) -> PatternData:
         """Analyze patterns in tool implementations."""
         patterns = {"examples": [], "common_patterns": []}
 
@@ -431,7 +438,7 @@ class LocalCodebaseExtractor(BasePatternExtractor):
 
         return patterns
 
-    def _analyze_test_patterns(self, test_files: List[str]) -> Dict[str, Any]:
+    def _analyze_test_patterns(self, test_files: List[str]) -> PatternData:
         """Analyze patterns in test files."""
         patterns = {"patterns": [], "coverage": []}
 

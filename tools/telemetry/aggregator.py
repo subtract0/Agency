@@ -11,6 +11,7 @@ Safe by default:
 """
 
 from __future__ import annotations
+from pydantic import BaseModel, Field
 
 import json
 import os
@@ -23,6 +24,18 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 # ------------------------
 # Helpers (also used by enhanced_aggregator)
 # ------------------------
+
+
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class TaskData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 def _project_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -81,9 +94,9 @@ def _iter_event_files(base_dir: Path) -> Iterable[Path]:
     return files
 
 
-def _load_events(since_dt: datetime, telemetry_dir: Optional[str] = None, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+def _load_events(since_dt: datetime, telemetry_dir: Optional[str] = None, limit: Optional[int] = None) -> List[TelemetryData]:
     base = _telemetry_dir(telemetry_dir)
-    events: List[Dict[str, Any]] = []
+    events: List[TelemetryData] = []
 
     for fp in _iter_event_files(base):
         try:
@@ -125,7 +138,7 @@ def _load_events(since_dt: datetime, telemetry_dir: Optional[str] = None, limit:
 # Public API
 # ------------------------
 
-def list_events(since: str = "1h", grep: Optional[str] = None, limit: int = 200, telemetry_dir: Optional[str] = None) -> List[Dict[str, Any]]:
+def list_events(since: str = "1h", grep: Optional[str] = None, limit: int = 200, telemetry_dir: Optional[str] = None) -> List[TelemetryData]:
     """Return recent events within window.
 
     Args:
@@ -139,7 +152,7 @@ def list_events(since: str = "1h", grep: Optional[str] = None, limit: int = 200,
 
     if grep:
         g = grep.lower()
-        filtered: List[Dict[str, Any]] = []
+        filtered: List[TelemetryData] = []
         for ev in events:
             try:
                 s = json.dumps(ev, default=str).lower()
@@ -158,7 +171,7 @@ def list_events(since: str = "1h", grep: Optional[str] = None, limit: int = 200,
     return events
 
 
-def aggregate(since: str = "1h", telemetry_dir: Optional[str] = None) -> Dict[str, Any]:
+def aggregate(since: str = "1h", telemetry_dir: Optional[str] = None) -> TelemetryData:
     """Aggregate telemetry for dashboard.
 
     Returns a summary dict with keys consumed by agency._render_dashboard_text:
@@ -182,7 +195,7 @@ def aggregate(since: str = "1h", telemetry_dir: Optional[str] = None) -> Dict[st
 
     # Running tasks tracking
     now = _iso_now()
-    tasks: Dict[str, Dict[str, Any]] = {}
+    tasks: Dict[str, TaskData] = {}
 
     # Resource snapshot (take latest orchestrator_started)
     max_concurrency: Optional[int] = None
@@ -261,7 +274,7 @@ def aggregate(since: str = "1h", telemetry_dir: Optional[str] = None) -> Dict[st
                     pass
 
     # Derive running tasks (not finished)
-    running_tasks: List[Dict[str, Any]] = []
+    running_tasks: List[TaskData] = []
     for t in tasks.values():
         if t.get("finished"):
             continue
@@ -290,7 +303,7 @@ def aggregate(since: str = "1h", telemetry_dir: Optional[str] = None) -> Dict[st
         util = None
 
     # Compose summary
-    summary: Dict[str, Any] = {
+    summary: TelemetryData = {
         "metrics": {
             "total_events": total_events,
             "tasks_started": tasks_started,

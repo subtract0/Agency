@@ -4,6 +4,7 @@ In-memory start with optional persistence to SQLite.
 """
 
 import json
+from pydantic import BaseModel, Field
 import sqlite3
 from dataclasses import dataclass, asdict
 from typing import List, Dict, Any, Optional
@@ -11,12 +12,24 @@ from datetime import datetime
 from pathlib import Path
 
 
+
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class PatternData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
 @dataclass
 class Pattern:
     """Represents a learned pattern from autonomous operations."""
     id: str
     pattern_type: str  # error_fix, optimization, refactoring, etc.
-    context: Dict[str, Any]
+    context: PatternData
     solution: str
     success_rate: float
     usage_count: int
@@ -187,7 +200,7 @@ class UnifiedPatternStore:
 
         return pattern_id
 
-    def get_statistics(self) -> Dict[str, Any]:
+    def get_statistics(self) -> PatternData:
         """
         Get store statistics.
 
@@ -254,7 +267,7 @@ class UnifiedPatternStore:
         else:
             return "general_transformation"
 
-    def _emit_telemetry(self, event: str, data: Dict[str, Any]):
+    def _emit_telemetry(self, event: str, data: TelemetryData):
         """
         Emit telemetry event through unified system.
         """

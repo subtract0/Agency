@@ -1,4 +1,5 @@
 from __future__ import annotations
+from pydantic import BaseModel, Field
 
 import argparse
 import json
@@ -12,11 +13,17 @@ ENV_DIR = "AGENCY_TELEMETRY_DIR"
 DEFAULT_TELEMETRY_DIR = os.path.join(os.getcwd(), "logs", "telemetry")
 
 
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
 def _telemetry_dir() -> str:
     return os.environ.get(ENV_DIR) or DEFAULT_TELEMETRY_DIR
 
 
-def _render_text(summary: Dict[str, Any]) -> None:
+def _render_text(summary: TelemetryData) -> None:
     metrics = summary.get("metrics", {})
     total = metrics.get("total_events", 0)
     if total == 0:

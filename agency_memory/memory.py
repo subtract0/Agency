@@ -7,6 +7,7 @@ See MCP_INTEGRATION_STANDARDS.md for detailed specifications.
 """
 
 from datetime import datetime
+from pydantic import BaseModel, Field
 from typing import Any, Dict, List, Optional
 from abc import ABC, abstractmethod
 import os
@@ -14,6 +15,18 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+
+
+class MemoryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class DataModel(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class MemoryStore(ABC):
     """Abstract interface for memory storage backends.
@@ -33,7 +46,7 @@ class MemoryStore(ABC):
         pass
 
     @abstractmethod
-    def search(self, tags: List[str]) -> List[Dict[str, Any]]:
+    def search(self, tags: List[str]) -> List[DataModel]:
         """Retrieve memories matching any of the provided tags.
 
         Implements semantic search pattern recommended in MCP standards.
@@ -42,7 +55,7 @@ class MemoryStore(ABC):
         pass
 
     @abstractmethod
-    def get_all(self) -> List[Dict[str, Any]]:
+    def get_all(self) -> List[MemoryData]:
         """Get all stored memories."""
         pass
 
@@ -56,7 +69,7 @@ class InMemoryStore(MemoryStore):
     """
 
     def __init__(self):
-        self._memories: Dict[str, Dict[str, Any]] = {}
+        self._memories: Dict[str, MemoryData] = {}
         logger.info(
             "InMemoryStore initialized - data will not persist between sessions"
         )
@@ -76,7 +89,7 @@ class InMemoryStore(MemoryStore):
         self._memories[key] = memory_record
         logger.debug(f"Stored memory with key: {key}, tags: {tags}")
 
-    def search(self, tags: List[str]) -> List[Dict[str, Any]]:
+    def search(self, tags: List[str]) -> List[MemoryData]:
         """Return memories that have any of the specified tags.
 
         Implements tag-based retrieval pattern from MCP standards.
@@ -98,11 +111,11 @@ class InMemoryStore(MemoryStore):
         logger.debug(f"Found {len(matches)} memories matching tags: {tags}")
         return matches
 
-    def get(self, key: str) -> Optional[Dict[str, Any]]:
+    def get(self, key: str) -> Optional[MemoryData]:
         """Get a specific memory by key."""
         return self._memories.get(key)
 
-    def get_all(self) -> List[Dict[str, Any]]:
+    def get_all(self) -> List[MemoryData]:
         """Return all memories sorted by timestamp (newest first)."""
         all_memories = list(self._memories.values())
         all_memories.sort(key=lambda x: x["timestamp"], reverse=True)
@@ -127,11 +140,11 @@ class Memory:
         tags = tags or []  # Default to empty list if not provided
         self._store.store(key, content, tags)
 
-    def search(self, tags: List[str]) -> List[Dict[str, Any]]:
+    def search(self, tags: List[str]) -> List[DataModel]:
         """Search memories by tags."""
         return self._store.search(tags)
 
-    def get(self, key: str) -> Optional[Dict[str, Any]]:
+    def get(self, key: str) -> Optional[MemoryData]:
         """Get a specific memory by key."""
         if hasattr(self._store, 'get'):
             return self._store.get(key)
@@ -142,12 +155,12 @@ class Memory:
                 return memory
         return None
 
-    def get_all(self) -> List[Dict[str, Any]]:
+    def get_all(self) -> List[MemoryData]:
         """Get all memories."""
         return self._store.get_all()
 
 
-def create_session_transcript(memories: List[Dict[str, Any]], session_id: str) -> str:
+def create_session_transcript(memories: List[MemoryData], session_id: str) -> str:
     """
     Create a markdown session transcript from memories.
 

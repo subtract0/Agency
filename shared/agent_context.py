@@ -6,11 +6,18 @@ like Memory without using global state.
 """
 
 from typing import Optional, Any, Dict
+from pydantic import BaseModel, Field
 from agency_memory import Memory
 import logging
 
 logger = logging.getLogger(__name__)
 
+
+
+class MemoryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 class AgentContext:
     """
@@ -30,7 +37,7 @@ class AgentContext:
         """
         self.memory = memory or Memory()
         self.session_id = session_id or self._generate_session_id()
-        self._metadata: Dict[str, Any] = {}
+        self._metadata: MemoryData = {}
 
         logger.debug(f"AgentContext initialized with session_id: {self.session_id}")
 
@@ -60,7 +67,7 @@ class AgentContext:
         all_tags = tags + [f"session:{self.session_id}"]
         self.memory.store(key, content, all_tags)
 
-    def search_memories(self, tags: list[str], include_session: bool = True) -> list[Dict[str, Any]]:
+    def search_memories(self, tags: list[str], include_session: bool = True) -> list[MemoryData]:
         """
         Search memories with optional session filtering.
 
@@ -75,7 +82,7 @@ class AgentContext:
         candidates = self.memory.search([session_tag]) if include_session else self.memory.get_all()
 
         req = set(tags or [])
-        results: list[Dict[str, Any]] = []
+        results: list[MemoryData] = []
         for mem in candidates:
             mem_tags = set(mem.get("tags", []))
             if req.issubset(mem_tags):
@@ -89,7 +96,7 @@ class AgentContext:
         results.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
         return results
 
-    def get_session_memories(self) -> list[Dict[str, Any]]:
+    def get_session_memories(self) -> list[MemoryData]:
         """Get all memories for this session."""
         return self.memory.search([f"session:{self.session_id}"])
 

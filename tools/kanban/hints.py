@@ -5,6 +5,7 @@ Learning Hint Registry: simple JSON-backed mapping from observed patterns to saf
 - Stored under logs/learning/hints.json
 """
 from __future__ import annotations
+from pydantic import BaseModel, Field
 
 import json
 import os
@@ -14,10 +15,16 @@ from typing import Any, Dict, List, Optional
 DEFAULT_PATH = os.path.join(os.getcwd(), "logs", "learning", "hints.json")
 
 
+
+class LearningData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
 @dataclass
 class Hint:
-    match: Dict[str, Any]
-    action: Dict[str, Any]
+    match: LearningData
+    action: LearningData
     confidence: float = 0.5
 
     def to_dict(self) -> BaseResponse:

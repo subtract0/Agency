@@ -8,6 +8,7 @@ This module extends the basic telemetry aggregator with:
 """
 
 from __future__ import annotations
+from pydantic import BaseModel, Field
 
 import json
 import numpy as np
@@ -23,12 +24,30 @@ from sklearn.linear_model import LinearRegression
 from tools.telemetry.aggregator import aggregate, list_events, _parse_since, _iso_now, _telemetry_dir
 
 
+
+
+
+class ResponseData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class TelemetryData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class AnalysisData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
 @dataclass
 class TimeSeriesPoint:
     """A single point in a time series."""
     timestamp: datetime
     value: float
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: ResponseData = field(default_factory=dict)
 
 
 @dataclass
@@ -65,7 +84,7 @@ class AnomalyDetection:
     deviation_score: float  # Standard deviations from expected
     is_anomaly: bool
     severity: str  # 'low', 'medium', 'high'
-    historical_context: Dict[str, Any]
+    historical_context: TelemetryData
 
 
 class EnhancedTelemetryAggregator:
@@ -109,7 +128,7 @@ class EnhancedTelemetryAggregator:
             # Log error but continue - aggregator should work without historical data
             pass
 
-    def _process_event_for_timeseries(self, event: Dict[str, Any]) -> None:
+    def _process_event_for_timeseries(self, event: TelemetryData) -> None:
         """Process a single event to extract time series data."""
         try:
             # Parse timestamp
@@ -168,7 +187,7 @@ class EnhancedTelemetryAggregator:
             # Skip invalid events
             pass
 
-    def _estimate_event_cost(self, usage: Dict[str, Any], model: str) -> float:
+    def _estimate_event_cost(self, usage: TelemetryData, model: str) -> float:
         """Estimate cost for a single event."""
         # Simple cost estimation - this could be enhanced with real pricing data
         tokens = usage.get('total_tokens', 0)
@@ -180,7 +199,7 @@ class EnhancedTelemetryAggregator:
             return tokens * 0.000008
         return tokens * 0.00001  # Default rate
 
-    def enhanced_aggregate(self, since: str = "1h", include_timeseries: bool = True) -> Dict[str, Any]:
+    def enhanced_aggregate(self, since: str = "1h", include_timeseries: bool = True) -> AnalysisData:
         """Enhanced aggregation with time-series analysis.
 
         Args:
@@ -224,7 +243,7 @@ class EnhancedTelemetryAggregator:
 
         return enhanced_result
 
-    def _update_timeseries_from_aggregation(self, aggregation: Dict[str, Any], timestamp: datetime) -> None:
+    def _update_timeseries_from_aggregation(self, aggregation: ResponseData, timestamp: datetime) -> None:
         """Update time series with current aggregation data."""
         try:
             # Extract key metrics from current aggregation
@@ -516,7 +535,7 @@ class EnhancedTelemetryAggregator:
 
         return anomalies
 
-    def _generate_predictions(self) -> Dict[str, Any]:
+    def _generate_predictions(self) -> TelemetryData:
         """Generate predictions for key metrics."""
         predictions = {}
 
@@ -536,7 +555,7 @@ class EnhancedTelemetryAggregator:
 
         return predictions
 
-    def _assess_data_quality(self) -> Dict[str, Any]:
+    def _assess_data_quality(self) -> TelemetryData:
         """Assess the quality of time series data."""
         quality = {
             'metrics_available': len(self.metric_history),
@@ -583,7 +602,7 @@ class EnhancedTelemetryAggregator:
 
         return quality
 
-    def get_metric_summary(self, metric_name: str, since: str = "24h") -> Optional[Dict[str, Any]]:
+    def get_metric_summary(self, metric_name: str, since: str = "24h") -> Optional[TelemetryData]:
         """Get detailed summary for a specific metric."""
         if metric_name not in self.metric_history:
             return None
@@ -624,7 +643,7 @@ class EnhancedTelemetryAggregator:
             }
         }
 
-    def _get_metric_trend(self, metric_name: str, since_dt: datetime, current_time: datetime) -> Optional[Dict[str, Any]]:
+    def _get_metric_trend(self, metric_name: str, since_dt: datetime, current_time: datetime) -> Optional[TelemetryData]:
         """Get trend information for a specific metric."""
         trends = self._analyze_trends(since_dt, current_time)
         metric_trend = next((t for t in trends if t.metric_name == metric_name), None)
@@ -633,7 +652,7 @@ class EnhancedTelemetryAggregator:
             return self._trend_to_dict(metric_trend)
         return None
 
-    def _get_recent_changes(self, points: List[TimeSeriesPoint]) -> Dict[str, Any]:
+    def _get_recent_changes(self, points: List[TimeSeriesPoint]) -> TelemetryData:
         """Analyze recent changes in a metric."""
         if len(points) < 2:
             return {}
@@ -671,7 +690,7 @@ class EnhancedTelemetryAggregator:
 
         return np.mean(accelerations) if accelerations else 0.0
 
-    def _trend_to_dict(self, trend: TrendAnalysis) -> Dict[str, Any]:
+    def _trend_to_dict(self, trend: TrendAnalysis) -> TelemetryData:
         """Convert TrendAnalysis to dictionary."""
         return {
             'metric_name': trend.metric_name,
@@ -684,7 +703,7 @@ class EnhancedTelemetryAggregator:
             'significance': trend.significance
         }
 
-    def _correlation_to_dict(self, correlation: CorrelationResult) -> Dict[str, Any]:
+    def _correlation_to_dict(self, correlation: CorrelationResult) -> TelemetryData:
         """Convert CorrelationResult to dictionary."""
         return {
             'metric1': correlation.metric1,
@@ -696,7 +715,7 @@ class EnhancedTelemetryAggregator:
             'interpretation': correlation.interpretation
         }
 
-    def _anomaly_to_dict(self, anomaly: AnomalyDetection) -> Dict[str, Any]:
+    def _anomaly_to_dict(self, anomaly: AnomalyDetection) -> TelemetryData:
         """Convert AnomalyDetection to dictionary."""
         return {
             'metric_name': anomaly.metric_name,
@@ -714,7 +733,7 @@ def create_enhanced_aggregator(telemetry_dir: Optional[str] = None, history_rete
     return EnhancedTelemetryAggregator(telemetry_dir=telemetry_dir, history_retention_hours=history_retention_hours)
 
 
-def enhanced_aggregate(since: str = "1h", telemetry_dir: Optional[str] = None, include_timeseries: bool = True) -> Dict[str, Any]:
+def enhanced_aggregate(since: str = "1h", telemetry_dir: Optional[str] = None, include_timeseries: bool = True) -> TelemetryData:
     """Convenience function for enhanced aggregation."""
     aggregator = create_enhanced_aggregator(telemetry_dir=telemetry_dir)
     return aggregator.enhanced_aggregate(since=since, include_timeseries=include_timeseries)

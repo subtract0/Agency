@@ -2,12 +2,25 @@
 Module and file scaffolding from templates.
 """
 from __future__ import annotations
+from pydantic import BaseModel, Field
 
 import dataclasses
 import os
 import re
 from typing import Dict, List, Optional
 
+
+
+
+class ResponseData(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
+
+class DataModel(BaseModel):
+    """Auto-generated Pydantic model to replace Dict[str, Any]"""
+    class Config:
+        extra = "allow"  # Allow additional fields for flexibility
 
 @dataclasses.dataclass
 class CreatedFile:
@@ -46,7 +59,7 @@ class {{class_name}}:
         # TODO: Add initialization logic
         pass
 
-    def run(self, **params: Any) -> Dict[str, Any]:
+    def run(self, **params: Any) -> DataModel:
         """
         Execute {{name}} operation.
 
@@ -152,7 +165,7 @@ TEMPLATES = {
 }
 
 
-def scaffold_module(template: str, name: str, out_dir: str, params: Optional[Dict[str, Any]] = None) -> List[CreatedFile]:
+def scaffold_module(template: str, name: str, out_dir: str, params: Optional[DataModel] = None) -> List[CreatedFile]:
     """
     Create module scaffold from template.
 
@@ -234,7 +247,7 @@ def _to_class_name(name: str) -> str:
     return ''.join(word.capitalize() for word in words if word)
 
 
-def _render_template(template: str, variables: Dict[str, Any]) -> str:
+def _render_template(template: str, variables: ResponseData) -> str:
     """Simple template rendering with {{var}} placeholders."""
     result = template
     for key, value in variables.items():
