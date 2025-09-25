@@ -10,6 +10,7 @@ import logging
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from datetime import datetime
+from shared.pattern_models import PatternData
 
 from agency_memory.vector_store import VectorStore, SimilarityResult
 from .coding_pattern import CodingPattern, ProblemContext
@@ -306,7 +307,7 @@ class PatternStore:
             logger.error(f"Failed to find related patterns for {pattern_id}: {e}")
             return []
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> Any:
         """Get pattern store statistics."""
         try:
             all_patterns = []

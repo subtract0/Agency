@@ -56,10 +56,10 @@ class SwarmMemoryStore(MemoryStore):
             max_memories_per_agent: Maximum memories per agent before pruning
             pruning_threshold: When to trigger pruning (0.8 = 80% of max)
         """
-        self._memories: Dict[str, Dict[str, Any]] = {}
+        self._memories: Dict[str, Any] = {}
         self._agent_namespaces: Dict[str, Set[str]] = defaultdict(set)
-        self._shared_knowledge: Dict[str, Dict[str, Any]] = {}
-        self._memory_summaries: Dict[str, Dict[str, Any]] = {}
+        self._shared_knowledge: Dict[str, Any] = {}
+        self._memory_summaries: Dict[str, Any] = {}
 
         self.max_memories_per_agent = max_memories_per_agent
         self.pruning_threshold = pruning_threshold
@@ -219,7 +219,7 @@ class SwarmMemoryStore(MemoryStore):
 
         return memories
 
-    def get_agent_summary(self, agent_id: str) -> Dict[str, Any]:
+    def get_agent_summary(self, agent_id: str) -> Any:
         """
         Get memory summary for specific agent.
 
@@ -275,7 +275,7 @@ class SwarmMemoryStore(MemoryStore):
 
         return summary
 
-    def get_swarm_overview(self) -> Dict[str, Any]:
+    def get_swarm_overview(self) -> Any:
         """
         Get overview of entire swarm memory state.
 
@@ -602,12 +602,12 @@ class SwarmMemory(Memory):
             tags, effective_agent_id, include_shared, min_priority
         )
 
-    def get_summary(self, agent_id: Optional[str] = None) -> Dict[str, Any]:
+    def get_summary(self, agent_id: Optional[str] = None) -> Any:
         """Get memory summary for agent."""
         effective_agent_id = agent_id or self.agent_id
         return self._store.get_agent_summary(effective_agent_id)
 
-    def get_swarm_overview(self) -> Dict[str, Any]:
+    def get_swarm_overview(self) -> Any:
         """Get overview of entire swarm memory state."""
         return self._store.get_swarm_overview()
 

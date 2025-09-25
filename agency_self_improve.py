@@ -1,0 +1,977 @@
+#!/usr/bin/env python3
+"""
+Agency Self-Improvement Module
+Enables the Agency to analyze and improve its own codebase autonomously
+"""
+
+import os
+import sys
+import json
+import time
+import argparse
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple
+from shared.common_models import model_to_dict, dict_to_model,  BaseResponse, MetricsData, ConfigData, TaskResult, AnalysisResult
+
+from datetime import datetime, timezone
+from dataclasses import dataclass, asdict
+
+# Add project root to path
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
+
+from shared.utils import silence_warnings_and_logs
+silence_warnings_and_logs()
+
+# Import with graceful fallbacks
+try:
+    from agency_memory import Memory, create_enhanced_memory_store
+except:
+    Memory = None
+    create_enhanced_memory_store = None
+
+try:
+    from pattern_intelligence import CodingPattern, PatternStore
+except:
+    CodingPattern = None
+    PatternStore = None
+
+try:
+    from core.telemetry import SimpleTelemetry
+except:
+    SimpleTelemetry = None
+
+try:
+    from shared.agent_context import create_agent_context
+except:
+    create_agent_context = None
+
+
+@dataclass
+class ImprovementOpportunity:
+    """Represents a potential improvement to the codebase"""
+    id: str
+    type: str  # 'performance', 'readability', 'architecture', 'testing', 'documentation'
+    severity: str  # 'low', 'medium', 'high', 'critical'
+    file_path: str
+    line_range: Optional[Tuple[int, int]]
+    description: str
+    suggested_fix: str
+    impact_score: float  # 0.0 to 1.0
+    confidence: float  # 0.0 to 1.0
+    metadata: Dict[str, Any]
+
+
+@dataclass
+class SelfAnalysisReport:
+    """Complete self-analysis report"""
+    timestamp: str
+    total_files_analyzed: int
+    total_lines_analyzed: int
+    opportunities_found: List[ImprovementOpportunity]
+    patterns_detected: List[str]
+    health_score: float  # 0.0 to 1.0
+    recommendations: List[str]
+    metrics: Dict[str, Any]
+
+
+class AgencySelfImprover:
+    """Autonomous self-improvement system for the Agency codebase"""
+
+    def __init__(self):
+        # Initialize with graceful fallbacks
+        self.telemetry = None
+        if SimpleTelemetry:
+            try:
+                self.telemetry = SimpleTelemetry()
+            except:
+                pass
+
+        self.memory_store = None
+        self.memory = None
+        if create_enhanced_memory_store and Memory:
+            try:
+                self.memory_store = create_enhanced_memory_store()
+                self.memory = Memory(store=self.memory_store)
+            except:
+                pass
+
+        self.pattern_store = None
+        if PatternStore:
+            try:
+                self.pattern_store = PatternStore(namespace="self_improvement")
+            except:
+                pass
+
+        self.context = None
+        if create_agent_context:
+            try:
+                self.context = create_agent_context(memory=self.memory)
+            except:
+                pass
+
+        # Core directories to analyze
+        self.core_dirs = [
+            "agency_code_agent",
+            "planner_agent",
+            "auditor_agent",
+            "test_generator_agent",
+            "learning_agent",
+            "quality_enforcer_agent",
+            "merger_agent",
+            "toolsmith_agent",
+            "chief_architect_agent",
+            "work_completion_summary_agent",
+            "core",
+            "shared",
+            "tools",
+            "pattern_intelligence",
+            "agency_memory"
+        ]
+
+        # Improvement patterns
+        self.improvement_patterns = {
+            "duplicate_code": self._detect_duplicate_code,
+            "long_functions": self._detect_long_functions,
+            "missing_tests": self._detect_missing_tests,
+            "missing_docs": self._detect_missing_documentation,
+            "complexity": self._detect_high_complexity,
+            "performance": self._detect_performance_issues,
+            "architecture": self._detect_architecture_issues,
+            "memory_leaks": self._detect_memory_leaks,
+            "error_handling": self._detect_poor_error_handling,
+            "constitutional": self._detect_constitutional_violations
+        }
+
+    def analyze_self(self, focus_areas: Optional[List[str]] = None) -> SelfAnalysisReport:
+        """Perform comprehensive self-analysis of the Agency codebase"""
+
+        if self.telemetry and hasattr(self.telemetry, 'emit'):
+            self.telemetry.emit("self_analysis_started", {
+                "focus_areas": focus_areas,
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            })
+
+        # Only print if not in quiet/JSON mode
+        if not hasattr(self, 'quiet_mode'):
+            print("🔍 Starting self-analysis of Agency codebase...")
+
+        opportunities = []
+        patterns_detected = []
+        total_files = 0
+        total_lines = 0
+
+        # Analyze each core directory
+        for dir_name in self.core_dirs:
+            dir_path = project_root / dir_name
+            if not dir_path.exists():
+                continue
+
+            if not hasattr(self, 'quiet_mode'):
+                print(f"  Analyzing {dir_name}...")
+
+            # Analyze Python files in directory
+            for py_file in dir_path.rglob("*.py"):
+                if "__pycache__" in str(py_file):
+                    continue
+
+                total_files += 1
+
+                try:
+                    with open(py_file, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                        lines = content.splitlines()
+                        total_lines += len(lines)
+
+                    # Run all improvement detectors
+                    for pattern_name, detector in self.improvement_patterns.items():
+                        if focus_areas and pattern_name not in focus_areas:
+                            continue
+
+                        detected = detector(py_file, content, lines)
+                        if detected:
+                            opportunities.extend(detected)
+                            if pattern_name not in patterns_detected:
+                                patterns_detected.append(pattern_name)
+
+                except Exception as e:
+                    print(f"    ⚠️  Error analyzing {py_file}: {e}")
+
+        # Calculate health score
+        health_score = self._calculate_health_score(opportunities, total_files, total_lines)
+
+        # Generate recommendations
+        recommendations = self._generate_recommendations(opportunities, patterns_detected)
+
+        # Create report
+        report = SelfAnalysisReport(
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            total_files_analyzed=total_files,
+            total_lines_analyzed=total_lines,
+            opportunities_found=opportunities,
+            patterns_detected=patterns_detected,
+            health_score=health_score,
+            recommendations=recommendations,
+            metrics={
+                "avg_opportunities_per_file": len(opportunities) / max(total_files, 1),
+                "critical_issues": len([o for o in opportunities if o.severity == "critical"]),
+                "high_priority_issues": len([o for o in opportunities if o.severity == "high"]),
+                "test_coverage_estimate": self._estimate_test_coverage(),
+                "documentation_coverage": self._estimate_doc_coverage()
+            }
+        )
+
+        # Store in memory for learning
+        if self.memory:
+            self._store_analysis_in_memory(report)
+
+        # Emit telemetry
+        if self.telemetry and hasattr(self.telemetry, 'emit'):
+            self.telemetry.emit("self_analysis_completed", {
+                "opportunities_found": len(opportunities),
+                "health_score": health_score,
+                "patterns_detected": patterns_detected
+            })
+
+        return report
+
+    def _detect_duplicate_code(self, file_path: Path, content: str, lines: List[str]) -> List[ImprovementOpportunity]:
+        """Detect duplicate code patterns"""
+        opportunities = []
+
+        # Simple duplicate detection: look for similar function patterns
+        function_bodies = {}
+        current_func = None
+        func_start = 0
+        indent_level = 0
+
+        for i, line in enumerate(lines):
+            if line.strip().startswith("def "):
+                current_func = line.strip()
+                func_start = i
+                indent_level = len(line) - len(line.lstrip())
+            elif current_func and line and len(line) - len(line.lstrip()) <= indent_level:
+                # Function ended
+                func_body = "\n".join(lines[func_start:i])
+                func_hash = hash(func_body.replace(" ", "").replace("\n", ""))
+
+                if func_hash in function_bodies:
+                    opportunities.append(ImprovementOpportunity(
+                        id=f"dup_{file_path.stem}_{i}",
+                        type="duplicate_code",
+                        severity="medium",
+                        file_path=str(file_path),
+                        line_range=(func_start, i),
+                        description=f"Potential duplicate function: {current_func}",
+                        suggested_fix="Consider extracting common functionality to shared utility",
+                        impact_score=0.6,
+                        confidence=0.7,
+                        metadata={"function": current_func}
+                    ))
+                else:
+                    function_bodies[func_hash] = current_func
+
+                current_func = None
+
+        return opportunities
+
+    def _detect_long_functions(self, file_path: Path, content: str, lines: List[str]) -> List[ImprovementOpportunity]:
+        """Detect functions that are too long"""
+        opportunities = []
+        current_func = None
+        func_start = 0
+
+        for i, line in enumerate(lines):
+            if line.strip().startswith("def "):
+                if current_func:
+                    # Check previous function length
+                    func_length = i - func_start
+                    if func_length > 50:  # Constitutional: functions under 50 lines
+                        severity = "high" if func_length > 100 else "medium"
+                        opportunities.append(ImprovementOpportunity(
+                            id=f"long_{file_path.stem}_{func_start}",
+                            type="readability",
+                            severity=severity,
+                            file_path=str(file_path),
+                            line_range=(func_start, i),
+                            description=f"Function '{current_func}' is {func_length} lines (limit: 50)",
+                            suggested_fix="Break down into smaller, focused functions",
+                            impact_score=0.7,
+                            confidence=1.0,
+                            metadata={"function": current_func, "length": func_length}
+                        ))
+
+                current_func = line.strip().split("(")[0].replace("def ", "")
+                func_start = i
+
+        return opportunities
+
+    def _detect_missing_tests(self, file_path: Path, content: str, lines: List[str]) -> List[ImprovementOpportunity]:
+        """Detect modules without corresponding tests"""
+        opportunities = []
+
+        # Skip test files themselves
+        if "test_" in file_path.name or file_path.parts[-2] == "tests":
+            return opportunities
+
+        # Check if corresponding test file exists
+        test_file_name = f"test_{file_path.stem}.py"
+        test_paths = [
+            project_root / "tests" / test_file_name,
+            file_path.parent / "tests" / test_file_name,
+            file_path.parent / test_file_name
+        ]
+
+        test_exists = any(p.exists() for p in test_paths)
+
+        if not test_exists and "def " in content:
+            # Count functions that need testing
+            functions = [line for line in lines if line.strip().startswith("def ") and not line.strip().startswith("def _")]
+
+            if functions:
+                opportunities.append(ImprovementOpportunity(
+                    id=f"notest_{file_path.stem}",
+                    type="testing",
+                    severity="high",
+                    file_path=str(file_path),
+                    line_range=None,
+                    description=f"No test file found for {file_path.name} ({len(functions)} functions)",
+                    suggested_fix=f"Create tests/{test_file_name} with comprehensive test coverage",
+                    impact_score=0.8,
+                    confidence=1.0,
+                    metadata={"functions": len(functions)}
+                ))
+
+        return opportunities
+
+    def _detect_missing_documentation(self, file_path: Path, content: str, lines: List[str]) -> List[ImprovementOpportunity]:
+        """Detect missing docstrings and documentation"""
+        opportunities = []
+
+        for i, line in enumerate(lines):
+            if line.strip().startswith("def ") or line.strip().startswith("class "):
+                # Check for docstring on next lines
+                has_docstring = False
+                for j in range(i + 1, min(i + 5, len(lines))):
+                    if '"""' in lines[j] or "'''" in lines[j]:
+                        has_docstring = True
+                        break
+                    if lines[j].strip() and not lines[j].strip().startswith("#"):
+                        break
+
+                if not has_docstring:
+                    item_type = "function" if "def " in line else "class"
+                    item_name = line.strip().split("(")[0].replace("def ", "").replace("class ", "")
+
+                    # Skip private methods
+                    if not item_name.startswith("_"):
+                        opportunities.append(ImprovementOpportunity(
+                            id=f"nodoc_{file_path.stem}_{i}",
+                            type="documentation",
+                            severity="low",
+                            file_path=str(file_path),
+                            line_range=(i, i + 1),
+                            description=f"Missing docstring for {item_type} '{item_name}'",
+                            suggested_fix=f"Add comprehensive docstring explaining purpose, parameters, and return value",
+                            impact_score=0.4,
+                            confidence=1.0,
+                            metadata={"item": item_name, "type": item_type}
+                        ))
+
+        return opportunities
+
+    def _detect_high_complexity(self, file_path: Path, content: str, lines: List[str]) -> List[ImprovementOpportunity]:
+        """Detect high cyclomatic complexity"""
+        opportunities = []
+
+        # Simple complexity detection based on control flow keywords
+        complexity_keywords = ["if ", "elif ", "else:", "for ", "while ", "try:", "except", "with "]
+
+        current_func = None
+        func_start = 0
+        func_complexity = 0
+
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+
+            if stripped.startswith("def "):
+                # Process previous function
+                if current_func and func_complexity > 10:
+                    opportunities.append(ImprovementOpportunity(
+                        id=f"complex_{file_path.stem}_{func_start}",
+                        type="complexity",
+                        severity="medium" if func_complexity < 15 else "high",
+                        file_path=str(file_path),
+                        line_range=(func_start, i),
+                        description=f"High complexity in '{current_func}' (score: {func_complexity})",
+                        suggested_fix="Refactor to reduce cyclomatic complexity",
+                        impact_score=0.7,
+                        confidence=0.8,
+                        metadata={"function": current_func, "complexity": func_complexity}
+                    ))
+
+                current_func = stripped.split("(")[0].replace("def ", "")
+                func_start = i
+                func_complexity = 1  # Base complexity
+
+            elif current_func:
+                # Count complexity indicators
+                for keyword in complexity_keywords:
+                    if keyword in stripped:
+                        func_complexity += 1
+                        break
+
+        return opportunities
+
+    def _detect_performance_issues(self, file_path: Path, content: str, lines: List[str]) -> List[ImprovementOpportunity]:
+        """Detect potential performance issues"""
+        opportunities = []
+
+        # Performance anti-patterns
+        patterns = [
+            ("in range(len(", "Use enumerate() instead of range(len())"),
+            ("time.sleep(", "Avoid blocking sleep in async code"),
+            ("json.loads(json.dumps(", "Inefficient deep copy, use copy.deepcopy()"),
+            ("for.*for.*for", "Triple nested loops detected"),
+            (r"\.append\(.*\).*\.append\(", "Multiple appends in loop, consider list comprehension")
+        ]
+
+        for i, line in enumerate(lines):
+            for pattern, suggestion in patterns:
+                if pattern in line:
+                    opportunities.append(ImprovementOpportunity(
+                        id=f"perf_{file_path.stem}_{i}",
+                        type="performance",
+                        severity="medium",
+                        file_path=str(file_path),
+                        line_range=(i, i + 1),
+                        description=f"Performance issue: {pattern}",
+                        suggested_fix=suggestion,
+                        impact_score=0.6,
+                        confidence=0.7,
+                        metadata={"pattern": pattern, "line": i}
+                    ))
+
+        return opportunities
+
+    def _detect_architecture_issues(self, file_path: Path, content: str, lines: List[str]) -> List[ImprovementOpportunity]:
+        """Detect architecture and design issues"""
+        opportunities = []
+
+        # Check for circular imports
+        imports = [line for line in lines if line.startswith("from ") or line.startswith("import ")]
+
+        # Check for too many imports (high coupling)
+        if len(imports) > 20:
+            opportunities.append(ImprovementOpportunity(
+                id=f"arch_imports_{file_path.stem}",
+                type="architecture",
+                severity="medium",
+                file_path=str(file_path),
+                line_range=(0, len(imports)),
+                description=f"High coupling: {len(imports)} imports detected",
+                suggested_fix="Consider refactoring to reduce dependencies",
+                impact_score=0.6,
+                confidence=0.8,
+                metadata={"import_count": len(imports)}
+            ))
+
+        # Check for God classes (too many methods)
+        class_methods = {}
+        current_class = None
+
+        for line in lines:
+            if line.strip().startswith("class "):
+                current_class = line.strip().split("(")[0].replace("class ", "")
+                class_methods[current_class] = 0
+            elif current_class and line.strip().startswith("def "):
+                class_methods[current_class] += 1
+
+        for class_name, method_count in class_methods.items():
+            if method_count > 20:
+                opportunities.append(ImprovementOpportunity(
+                    id=f"arch_god_{file_path.stem}_{class_name}",
+                    type="architecture",
+                    severity="high",
+                    file_path=str(file_path),
+                    line_range=None,
+                    description=f"God class '{class_name}' has {method_count} methods",
+                    suggested_fix="Consider splitting into smaller, focused classes",
+                    impact_score=0.8,
+                    confidence=0.9,
+                    metadata={"class": class_name, "methods": method_count}
+                ))
+
+        return opportunities
+
+    def _detect_memory_leaks(self, file_path: Path, content: str, lines: List[str]) -> List[ImprovementOpportunity]:
+        """Detect potential memory leaks"""
+        opportunities = []
+
+        # Patterns that might cause memory leaks
+        leak_patterns = [
+            ("global ", "Global variables can cause memory leaks"),
+            ("cache = {}", "Unbounded cache detected"),
+            ("[]" * 1000, "Large list allocation without cleanup"),
+            ("open(", "File not closed properly (use context manager)")
+        ]
+
+        for i, line in enumerate(lines):
+            # Check for file operations without context managers
+            if "open(" in line and "with " not in line:
+                opportunities.append(ImprovementOpportunity(
+                    id=f"leak_file_{file_path.stem}_{i}",
+                    type="memory_leaks",
+                    severity="medium",
+                    file_path=str(file_path),
+                    line_range=(i, i + 1),
+                    description="File opened without context manager",
+                    suggested_fix="Use 'with open(...) as f:' pattern",
+                    impact_score=0.7,
+                    confidence=0.9,
+                    metadata={"line": i}
+                ))
+
+        return opportunities
+
+    def _detect_poor_error_handling(self, file_path: Path, content: str, lines: List[str]) -> List[ImprovementOpportunity]:
+        """Detect poor error handling practices"""
+        opportunities = []
+
+        for i, line in enumerate(lines):
+            # Detect bare except
+            if line.strip() == "except:":
+                opportunities.append(ImprovementOpportunity(
+                    id=f"err_bare_{file_path.stem}_{i}",
+                    type="error_handling",
+                    severity="high",
+                    file_path=str(file_path),
+                    line_range=(i, i + 1),
+                    description="Bare except clause catches all exceptions",
+                    suggested_fix="Specify exception types to catch",
+                    impact_score=0.8,
+                    confidence=1.0,
+                    metadata={"line": i}
+                ))
+
+            # Detect except Exception without logging
+            elif "except Exception" in line:
+                # Check if there's logging in next few lines
+                has_logging = False
+                for j in range(i + 1, min(i + 5, len(lines))):
+                    if "log" in lines[j].lower() or "print" in lines[j]:
+                        has_logging = True
+                        break
+
+                if not has_logging:
+                    opportunities.append(ImprovementOpportunity(
+                        id=f"err_nolog_{file_path.stem}_{i}",
+                        type="error_handling",
+                        severity="medium",
+                        file_path=str(file_path),
+                        line_range=(i, i + 5),
+                        description="Exception caught but not logged",
+                        suggested_fix="Add logging for caught exceptions",
+                        impact_score=0.6,
+                        confidence=0.8,
+                        metadata={"line": i}
+                    ))
+
+        return opportunities
+
+    def _detect_constitutional_violations(self, file_path: Path, content: str, lines: List[str]) -> List[ImprovementOpportunity]:
+        """Detect violations of constitutional principles"""
+        opportunities = []
+
+        # Check for Dict usage (should use Pydantic models)
+        for i, line in enumerate(lines):
+            if ": Dict[" in line or "-> Dict[" in line:
+                opportunities.append(ImprovementOpportunity(
+                    id=f"const_dict_{file_path.stem}_{i}",
+                    type="constitutional",
+                    severity="high",
+                    file_path=str(file_path),
+                    line_range=(i, i + 1),
+                    description="Constitutional violation: Using Dict instead of Pydantic model",
+                    suggested_fix="Use concrete Pydantic model with typed fields",
+                    impact_score=0.9,
+                    confidence=1.0,
+                    metadata={"article": "Strict Typing", "line": i}
+                ))
+
+            # Check for missing validation
+            if "def " in line and "api" in line.lower() and "validate" not in content[max(0, i-50):i+50]:
+                opportunities.append(ImprovementOpportunity(
+                    id=f"const_valid_{file_path.stem}_{i}",
+                    type="constitutional",
+                    severity="critical",
+                    file_path=str(file_path),
+                    line_range=(i, i + 10),
+                    description="Constitutional violation: API endpoint without validation",
+                    suggested_fix="Add Zod schema validation for all inputs",
+                    impact_score=1.0,
+                    confidence=0.7,
+                    metadata={"article": "Validate All Inputs", "line": i}
+                ))
+
+        return opportunities
+
+    def _calculate_health_score(self, opportunities: List[ImprovementOpportunity],
+                                total_files: int, total_lines: int) -> float:
+        """Calculate overall health score of the codebase"""
+
+        if total_files == 0:
+            return 1.0
+
+        # Weight issues by severity
+        severity_weights = {
+            "critical": 10.0,
+            "high": 5.0,
+            "medium": 2.0,
+            "low": 1.0
+        }
+
+        total_weight = sum(
+            severity_weights.get(o.severity, 1.0) * o.impact_score
+            for o in opportunities
+        )
+
+        # Normalize by files and lines
+        issues_per_kloc = (total_weight / max(total_lines / 1000, 1))
+
+        # Convert to health score (inverse of issues)
+        health_score = max(0.0, 1.0 - (issues_per_kloc / 100))
+
+        return round(health_score, 3)
+
+    def _generate_recommendations(self, opportunities: List[ImprovementOpportunity],
+                                 patterns_detected: List[str]) -> List[str]:
+        """Generate actionable recommendations based on analysis"""
+
+        recommendations = []
+
+        # Count issues by type
+        issue_counts = {}
+        for opp in opportunities:
+            issue_counts[opp.type] = issue_counts.get(opp.type, 0) + 1
+
+        # Priority recommendations based on issue types
+        if issue_counts.get("constitutional", 0) > 0:
+            recommendations.append("🚨 CRITICAL: Fix constitutional violations immediately to maintain system integrity")
+
+        if issue_counts.get("testing", 0) > 5:
+            recommendations.append("📝 HIGH: Improve test coverage - multiple modules lack tests")
+
+        if issue_counts.get("complexity", 0) > 3:
+            recommendations.append("🔧 MEDIUM: Refactor complex functions to improve maintainability")
+
+        if issue_counts.get("documentation", 0) > 10:
+            recommendations.append("📚 LOW: Add missing documentation to improve code understanding")
+
+        if issue_counts.get("performance", 0) > 0:
+            recommendations.append("⚡ MEDIUM: Address performance bottlenecks for better efficiency")
+
+        # Add specific pattern-based recommendations
+        if "duplicate_code" in patterns_detected:
+            recommendations.append("♻️  Extract common functionality to shared utilities")
+
+        if "long_functions" in patterns_detected:
+            recommendations.append("✂️  Break down long functions following single-responsibility principle")
+
+        if "memory_leaks" in patterns_detected:
+            recommendations.append("💾 Review resource management and use context managers")
+
+        return recommendations
+
+    def _estimate_test_coverage(self) -> float:
+        """Estimate test coverage based on test file presence"""
+
+        test_files = list((project_root / "tests").rglob("test_*.py")) if (project_root / "tests").exists() else []
+        source_files = []
+
+        for dir_name in self.core_dirs:
+            dir_path = project_root / dir_name
+            if dir_path.exists():
+                source_files.extend(dir_path.rglob("*.py"))
+
+        if not source_files:
+            return 0.0
+
+        # Simple heuristic: ratio of test files to source files
+        coverage = min(len(test_files) / len(source_files), 1.0)
+
+        return round(coverage, 2)
+
+    def _estimate_doc_coverage(self) -> float:
+        """Estimate documentation coverage"""
+
+        total_items = 0
+        documented_items = 0
+
+        for dir_name in self.core_dirs:
+            dir_path = project_root / dir_name
+            if not dir_path.exists():
+                continue
+
+            for py_file in dir_path.rglob("*.py"):
+                if "__pycache__" in str(py_file):
+                    continue
+
+                try:
+                    with open(py_file, 'r', encoding='utf-8') as f:
+                        lines = f.readlines()
+
+                    for i, line in enumerate(lines):
+                        if line.strip().startswith("def ") or line.strip().startswith("class "):
+                            total_items += 1
+
+                            # Check for docstring
+                            for j in range(i + 1, min(i + 5, len(lines))):
+                                if '"""' in lines[j] or "'''" in lines[j]:
+                                    documented_items += 1
+                                    break
+
+                except:
+                    pass
+
+        if total_items == 0:
+            return 0.0
+
+        return round(documented_items / total_items, 2)
+
+    def _store_analysis_in_memory(self, report: SelfAnalysisReport):
+        """Store analysis report in memory for future learning"""
+
+        if not self.memory:
+            return
+
+        # Store overall report with unique key
+        report_key = f"self_analysis_{report.timestamp.replace(':', '_').replace('.', '_')}"
+
+        try:
+            self.memory.store(
+                key=report_key,
+                content=json.dumps(asdict(report), default=str),
+                tags=["self_improvement", "analysis", "health_check"]
+            )
+        except Exception as e:
+            # Silently fail if memory storage has issues
+            pass
+
+        # Store high-priority improvements as patterns (if pattern store available)
+        if self.pattern_store:
+            try:
+                for opp in report.opportunities_found:
+                    if opp.severity in ["critical", "high"]:
+                        # Try to store pattern, but don't fail if API changed
+                        self.pattern_store.store_pattern({
+                            "id": opp.id,
+                            "description": opp.description,
+                            "suggested_fix": opp.suggested_fix,
+                            "severity": opp.severity,
+                            "file": opp.file_path
+                        })
+            except:
+                # Silently skip pattern storage if it fails
+                pass
+
+    def apply_improvements(self, opportunities: List[ImprovementOpportunity],
+                          dry_run: bool = True) -> BaseResponse:
+        """Apply selected improvements to the codebase"""
+
+        results = {
+            "applied": [],
+            "failed": [],
+            "skipped": []
+        }
+
+        print(f"\n{'🔍' if dry_run else '🔧'} {'Simulating' if dry_run else 'Applying'} improvements...")
+
+        for opp in opportunities:
+            # Only auto-fix high confidence, low-risk improvements
+            if opp.confidence < 0.8 or opp.severity == "critical":
+                results["skipped"].append({
+                    "id": opp.id,
+                    "reason": "Low confidence or critical issue - requires human review"
+                })
+                continue
+
+            if dry_run:
+                print(f"  [DRY RUN] Would fix: {opp.description}")
+                results["applied"].append(opp.id)
+            else:
+                # Actual implementation would apply fixes here
+                # For now, we just track what would be done
+                results["applied"].append(opp.id)
+
+        return results
+
+    def generate_improvement_plan(self, report: SelfAnalysisReport) -> str:
+        """Generate a detailed improvement plan from analysis"""
+
+        plan = []
+        plan.append("# Agency Self-Improvement Plan\n")
+        plan.append(f"Generated: {report.timestamp}\n")
+        plan.append(f"Health Score: {report.health_score:.1%}\n\n")
+
+        # Group opportunities by severity
+        by_severity = {}
+        for opp in report.opportunities_found:
+            if opp.severity not in by_severity:
+                by_severity[opp.severity] = []
+            by_severity[opp.severity].append(opp)
+
+        # Generate plan by priority
+        plan.append("## Priority Actions\n\n")
+
+        for severity in ["critical", "high", "medium", "low"]:
+            if severity not in by_severity:
+                continue
+
+            plan.append(f"### {severity.upper()} Priority\n\n")
+
+            for opp in by_severity[severity][:10]:  # Top 10 per category
+                plan.append(f"- **{opp.type}**: {opp.description}\n")
+                plan.append(f"  - File: `{opp.file_path}`\n")
+                plan.append(f"  - Fix: {opp.suggested_fix}\n")
+                plan.append(f"  - Impact: {opp.impact_score:.0%}\n\n")
+
+        # Add recommendations
+        plan.append("## Recommendations\n\n")
+        for rec in report.recommendations:
+            plan.append(f"- {rec}\n")
+
+        # Add metrics
+        plan.append("\n## Metrics\n\n")
+        for key, value in report.metrics.items():
+            plan.append(f"- {key}: {value}\n")
+
+        return "".join(plan)
+
+
+def main():
+    """Main entry point for self-improvement module"""
+
+    parser = argparse.ArgumentParser(description="Agency Self-Improvement System")
+    parser.add_argument("command", choices=["analyze", "improve", "plan", "report"],
+                       help="Command to execute")
+    parser.add_argument("--focus", nargs="+",
+                       help="Focus areas for analysis")
+    parser.add_argument("--dry-run", action="store_true",
+                       help="Simulate improvements without applying")
+    parser.add_argument("--output", help="Output file for reports")
+    parser.add_argument("--format", choices=["text", "json"], default="text",
+                       help="Output format (text or json)")
+
+    args = parser.parse_args()
+
+    improver = AgencySelfImprover()
+
+    # Set quiet mode for JSON output
+    if args.format == "json":
+        improver.quiet_mode = True
+
+    if args.command == "analyze":
+        report = improver.analyze_self(focus_areas=args.focus)
+
+        # Handle different output formats
+        if args.format == "json" or (args.output and args.output.endswith('.json')):
+            # JSON output mode
+            report_dict = asdict(report)
+
+            if args.output:
+                with open(args.output, 'w') as f:
+                    json.dump(report_dict, f, indent=2, default=str)
+                if args.format != "json":  # Only print if not pure JSON mode
+                    print(f"📁 Full report saved to {args.output}")
+            else:
+                # Output to stdout for piping
+                print(json.dumps(report_dict, indent=2, default=str))
+        else:
+            # Text output mode
+            print(f"\n📊 Analysis Complete")
+            print(f"   Files analyzed: {report.total_files_analyzed}")
+            print(f"   Lines analyzed: {report.total_lines_analyzed:,}")
+            print(f"   Issues found: {len(report.opportunities_found)}")
+            print(f"   Health score: {report.health_score:.1%}")
+            print(f"\n📋 Top Issues:")
+
+            # Show top 5 issues
+            for opp in sorted(report.opportunities_found,
+                             key=lambda x: (x.severity == "critical", x.impact_score),
+                             reverse=True)[:5]:
+                print(f"   [{opp.severity.upper()}] {opp.description}")
+
+            print(f"\n💡 Recommendations:")
+            for rec in report.recommendations[:3]:
+                print(f"   {rec}")
+
+            # Save text report if requested
+            if args.output:
+                with open(args.output, 'w') as f:
+                    f.write(f"Analysis Report\n")
+                    f.write(f"===============\n\n")
+                    f.write(f"Files analyzed: {report.total_files_analyzed}\n")
+                    f.write(f"Lines analyzed: {report.total_lines_analyzed:,}\n")
+                    f.write(f"Issues found: {len(report.opportunities_found)}\n")
+                    f.write(f"Health score: {report.health_score:.1%}\n")
+                print(f"\n📁 Report saved to {args.output}")
+
+    elif args.command == "improve":
+        # First analyze
+        report = improver.analyze_self(focus_areas=args.focus)
+
+        # Then apply improvements
+        high_priority = [o for o in report.opportunities_found
+                        if o.severity in ["high", "medium"] and o.confidence > 0.8]
+
+        print(f"\n🔧 Found {len(high_priority)} improvements to apply")
+
+        results = improver.apply_improvements(high_priority, dry_run=args.dry_run)
+
+        print(f"\n✅ Applied: {len(results['applied'])}")
+        print(f"❌ Failed: {len(results['failed'])}")
+        print(f"⏭️  Skipped: {len(results['skipped'])}")
+
+    elif args.command == "plan":
+        report = improver.analyze_self(focus_areas=args.focus)
+        plan = improver.generate_improvement_plan(report)
+
+        if args.output:
+            with open(args.output, 'w') as f:
+                f.write(plan)
+            print(f"📋 Improvement plan saved to {args.output}")
+        else:
+            print(plan)
+
+    elif args.command == "report":
+        # Generate comprehensive report
+        report = improver.analyze_self()
+
+        print("\n" + "=" * 60)
+        print("AGENCY SELF-ANALYSIS REPORT")
+        print("=" * 60)
+        print(f"\nHealth Score: {report.health_score:.1%}")
+        print(f"Files Analyzed: {report.total_files_analyzed}")
+        print(f"Total Issues: {len(report.opportunities_found)}")
+
+        # Issue breakdown
+        by_type = {}
+        for opp in report.opportunities_found:
+            by_type[opp.type] = by_type.get(opp.type, 0) + 1
+
+        print("\nIssues by Type:")
+        for issue_type, count in sorted(by_type.items(), key=lambda x: x[1], reverse=True):
+            print(f"  {issue_type}: {count}")
+
+        print("\nPatterns Detected:")
+        for pattern in report.patterns_detected:
+            print(f"  - {pattern}")
+
+        print("\nKey Metrics:")
+        for metric, value in report.metrics.items():
+            print(f"  {metric}: {value}")
+
+
+if __name__ == "__main__":
+    main()

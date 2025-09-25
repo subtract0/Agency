@@ -10,6 +10,12 @@ Recursive self-improvement capabilities:
 
 import logging
 from typing import Dict, List, Any, Optional
+from shared.learning_models import LearningPattern, LearningSession, CrossSessionData
+from shared.common_models import AnalysisResult
+from shared.common_models import MetricsData
+from shared.common_models import ValidationResult
+from shared.pattern_models import PatternData
+
 from datetime import datetime, timedelta
 import json
 
@@ -48,12 +54,12 @@ class MetaLearningEngine:
         self.pattern_store = pattern_store
         self.pattern_applicator = pattern_applicator
         self.learning_window_days = learning_window_days
-        self.meta_patterns: Dict[str, Any] = {}
+        self.meta_patterns: PatternData = {}
         self.learning_insights: List[Dict[str, Any]] = []
 
         logger.info("MetaLearning engine initialized")
 
-    def analyze_learning_effectiveness(self) -> Dict[str, Any]:
+    def analyze_learning_effectiveness(self) -> LearningPattern:
         """
         Analyze effectiveness of current learning and pattern application.
 
@@ -100,7 +106,7 @@ class MetaLearningEngine:
             logger.error(f"Learning effectiveness analysis failed: {e}")
             return {"error": str(e), "timestamp": datetime.now().isoformat()}
 
-    def optimize_learning_strategy(self) -> Dict[str, Any]:
+    def optimize_learning_strategy(self) -> LearningPattern:
         """
         Optimize learning strategy based on meta-analysis.
 
@@ -153,7 +159,7 @@ class MetaLearningEngine:
             logger.error(f"Learning strategy optimization failed: {e}")
             return {"error": str(e)}
 
-    def discover_pattern_synergies(self) -> Dict[str, Any]:
+    def discover_pattern_synergies(self) -> PatternData:
         """
         Discover patterns that work exceptionally well together.
 
@@ -198,7 +204,7 @@ class MetaLearningEngine:
             logger.error(f"Pattern synergy discovery failed: {e}")
             return {"error": str(e)}
 
-    def evolve_extraction_strategies(self) -> Dict[str, Any]:
+    def evolve_extraction_strategies(self) -> Any:
         """
         Evolve pattern extraction strategies based on learning outcomes.
 
@@ -242,7 +248,7 @@ class MetaLearningEngine:
             logger.error(f"Extraction strategy evolution failed: {e}")
             return {"error": str(e)}
 
-    def generate_meta_pattern(self, learning_data: Dict[str, Any]) -> Optional[CodingPattern]:
+    def generate_meta_pattern(self, learning_data: PatternData) -> Optional[CodingPattern]:
         """
         Generate a meta-pattern from learning data.
 
@@ -315,7 +321,7 @@ class MetaLearningEngine:
             logger.error(f"Meta-pattern generation failed: {e}")
             return None
 
-    def _analyze_pattern_effectiveness_trends(self) -> Dict[str, Any]:
+    def _analyze_pattern_effectiveness_trends(self) -> PatternData:
         """Analyze trends in pattern effectiveness over time."""
         try:
             # Get pattern statistics
@@ -368,7 +374,7 @@ class MetaLearningEngine:
             logger.debug(f"Pattern effectiveness analysis failed: {e}")
             return {}
 
-    def _analyze_application_effectiveness(self) -> Dict[str, Any]:
+    def _analyze_application_effectiveness(self) -> Any:
         """Analyze effectiveness of pattern applications."""
         try:
             app_stats = self.pattern_applicator.get_application_stats()
@@ -398,7 +404,7 @@ class MetaLearningEngine:
             logger.debug(f"Application effectiveness analysis failed: {e}")
             return {}
 
-    def _identify_learning_trends(self) -> Dict[str, Any]:
+    def _identify_learning_trends(self) -> LearningPattern:
         """Identify trends in learning and pattern discovery."""
         trends = {
             "pattern_discovery_rate": 0,
@@ -524,7 +530,7 @@ class MetaLearningEngine:
             logger.debug(f"Meta-insights generation failed: {e}")
             return insights
 
-    def _identify_optimization_targets(self, effectiveness_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _identify_optimization_targets(self, effectiveness_analysis: AnalysisResult) -> List[AnalysisResult]:
         """Identify specific targets for optimization."""
         targets = []
 
@@ -586,7 +592,7 @@ class MetaLearningEngine:
             logger.debug(f"Strategy adjustment generation failed: {e}")
             return adjustments
 
-    def _calculate_optimized_parameters(self, strategy_adjustments: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _calculate_optimized_parameters(self, strategy_adjustments: List[Any]) -> Any:
         """Calculate optimized parameters from strategy adjustments."""
         parameters = {
             "confidence_threshold": 0.7,  # Default
@@ -607,7 +613,7 @@ class MetaLearningEngine:
             logger.debug(f"Parameter optimization failed: {e}")
             return parameters
 
-    def _predict_improvements(self, new_parameters: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _predict_improvements(self, new_parameters: Any) -> List[Any]:
         """Predict improvements from new parameters."""
         predictions = []
 
@@ -725,7 +731,7 @@ class MetaLearningEngine:
 
         return super_patterns
 
-    def _calculate_combination_metrics(self, combinations: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _calculate_combination_metrics(self, combinations: List[MetricsData]) -> MetricsData:
         """Calculate metrics for pattern combinations."""
         if not combinations:
             return {}
@@ -743,7 +749,7 @@ class MetaLearningEngine:
                                              c.get("combined_effectiveness", 0) > 0.8])
         }
 
-    def _generate_synergy_insights(self, combinations: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _generate_synergy_insights(self, combinations: List[Any]) -> Any:
         """Generate insights about pattern synergies."""
         insights = {
             "domain_synergies": {},
@@ -783,7 +789,7 @@ class MetaLearningEngine:
             logger.debug(f"Synergy insights generation failed: {e}")
             return insights
 
-    def _analyze_extraction_effectiveness(self) -> Dict[str, Any]:
+    def _analyze_extraction_effectiveness(self) -> Any:
         """Analyze effectiveness of current extraction strategies."""
         # This would analyze which extraction methods produce the most effective patterns
         return {
@@ -800,7 +806,7 @@ class MetaLearningEngine:
             }
         }
 
-    def _identify_successful_strategies(self, extraction_analysis: Dict[str, Any]) -> Dict[str, Any]:
+    def _identify_successful_strategies(self, extraction_analysis: AnalysisResult) -> AnalysisResult:
         """Identify which extraction strategies are most successful."""
         source_effectiveness = extraction_analysis.get("source_effectiveness", {})
 
@@ -815,7 +821,7 @@ class MetaLearningEngine:
 
         return successful_strategies
 
-    def _evolve_strategies(self, successful_strategies: Dict[str, Any]) -> Dict[str, Any]:
+    def _evolve_strategies(self, successful_strategies: Any) -> Any:
         """Evolve strategies based on successful ones."""
         evolved = {}
 
@@ -829,7 +835,7 @@ class MetaLearningEngine:
 
         return evolved
 
-    def _generate_evolved_parameters(self, evolved_strategies: Dict[str, Any]) -> Dict[str, Any]:
+    def _generate_evolved_parameters(self, evolved_strategies: Any) -> Any:
         """Generate new parameters for evolved strategies."""
         return {
             "extraction_frequency": "daily",
@@ -839,7 +845,7 @@ class MetaLearningEngine:
             "evolution_timestamp": datetime.now().isoformat()
         }
 
-    def _create_validation_plan(self, evolved_strategies: Dict[str, Any]) -> Dict[str, Any]:
+    def _create_validation_plan(self, evolved_strategies: ValidationResult) -> ValidationResult:
         """Create plan to validate evolved strategies."""
         return {
             "validation_period": "2 weeks",

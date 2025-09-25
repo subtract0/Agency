@@ -16,6 +16,7 @@ from .context_handoff import ContextMessageHandoff
 from .context_handoff import ContextMessageHandoff as HandoffWithContext
 from .undo_snapshot import WorkspaceSnapshot, WorkspaceUndo
 from .handoff_context_read import HandoffContextRead
+from .github_manager import GitHubManager
 
 __all__ = [
     "Bash",
@@ -37,4 +38,5 @@ __all__ = [
     "WorkspaceSnapshot",
     "WorkspaceUndo",
     "HandoffContextRead",
+    "GitHubManager",
 ]

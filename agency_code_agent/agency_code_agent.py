@@ -17,6 +17,7 @@ from shared.system_hooks import (
     create_system_reminder_hook,
     create_memory_integration_hook,
     create_composite_hook,
+    create_runtime_hints_hook,
 )
 from tools import (
     LS,
@@ -63,9 +64,11 @@ def create_agency_code_agent(
     # Create hooks with memory integration
     reminder_hook = create_system_reminder_hook()
     memory_hook = create_memory_integration_hook(agent_context)
+    runtime_hints_hook = create_runtime_hints_hook()
     combined_hook = create_composite_hook([
         reminder_hook,
         memory_hook,
+        runtime_hints_hook,
     ])
 
     # Log agent creation

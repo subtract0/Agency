@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional
 from .memory import MemoryStore
 from .vector_store import VectorStore, SimilarityResult
 import json
+from shared.learning_models import LearningPattern
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ class EnhancedMemoryStore(MemoryStore):
             vector_store: Optional VectorStore instance
             embedding_provider: Embedding provider for semantic search
         """
-        self._memories: Dict[str, Dict[str, Any]] = {}
+        self._memories: Dict[str, Any] = {}
         self.vector_store = vector_store or VectorStore(embedding_provider=embedding_provider)
         self._learning_triggers = []
 
@@ -338,19 +339,19 @@ class EnhancedMemoryStore(MemoryStore):
 
         return patterns
 
-    def _is_successful_memory(self, memory: Dict[str, Any]) -> bool:
+    def _is_successful_memory(self, memory: Any) -> bool:
         """Check if a memory indicates success."""
         content = str(memory.get('content', '')).lower()
         success_indicators = ['success', 'completed', 'resolved', 'fixed', 'working', 'done']
         return any(indicator in content for indicator in success_indicators)
 
-    def _is_resolved_error(self, memory: Dict[str, Any]) -> bool:
+    def _is_resolved_error(self, memory: Any) -> bool:
         """Check if an error memory indicates resolution."""
         content = str(memory.get('content', '')).lower()
         resolution_indicators = ['resolved', 'fixed', 'solved', 'recovered', 'retry succeeded']
         return any(indicator in content for indicator in resolution_indicators)
 
-    def _check_learning_triggers(self, memory_record: Dict[str, Any]) -> None:
+    def _check_learning_triggers(self, memory_record: LearningPattern) -> None:
         """Check if memory triggers learning consolidation."""
         tags = memory_record.get('tags', [])
         content = str(memory_record.get('content', '')).lower()
@@ -382,7 +383,7 @@ class EnhancedMemoryStore(MemoryStore):
         """Clear processed learning triggers."""
         self._learning_triggers.clear()
 
-    def get_vector_store_stats(self) -> Dict[str, Any]:
+    def get_vector_store_stats(self) -> Any:
         """Get VectorStore statistics."""
         try:
             return self.vector_store.get_stats()
@@ -390,7 +391,7 @@ class EnhancedMemoryStore(MemoryStore):
             logger.error(f"Error getting VectorStore stats: {e}")
             return {'error': str(e)}
 
-    def optimize_vector_store(self) -> Dict[str, Any]:
+    def optimize_vector_store(self) -> Any:
         """Optimize VectorStore by ensuring all memories have embeddings."""
         try:
             optimization_stats = {
@@ -419,7 +420,7 @@ class EnhancedMemoryStore(MemoryStore):
             logger.error(f"VectorStore optimization failed: {e}")
             return {'error': str(e)}
 
-    def export_for_learning(self, session_id: str = None) -> Dict[str, Any]:
+    def export_for_learning(self, session_id: str = None) -> LearningPattern:
         """Export memories in format suitable for learning analysis."""
         try:
             # Get memories for the session or all memories

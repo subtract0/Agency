@@ -10,6 +10,8 @@ import os
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 import logging
+from shared.common_models import EventData
+from shared.pattern_models import PatternData
 
 logger = logging.getLogger(__name__)
 
@@ -350,7 +352,7 @@ class TelemetryPatternAnalyzer(BaseTool):
 
         return patterns
 
-    def _analyze_time_pattern(self, events: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _analyze_time_pattern(self, events: List[EventData]) -> EventData:
         """Analyze temporal patterns in events."""
         timestamps = [e.get('timestamp') for e in events if e.get('timestamp')]
         if not timestamps:
@@ -506,7 +508,7 @@ class TelemetryPatternAnalyzer(BaseTool):
 
         return recommendations
 
-    def _get_pattern_specific_steps(self, pattern: Dict[str, Any]) -> List[str]:
+    def _get_pattern_specific_steps(self, pattern: PatternData) -> List[str]:
         """Get specific steps for addressing a pattern."""
         pattern_type = pattern.get('type', '')
         pattern_id = pattern.get('pattern_id', '')

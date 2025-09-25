@@ -10,6 +10,9 @@ import tempfile
 import shutil
 from datetime import datetime
 from typing import Dict, Any, Optional
+from shared.common_models import TestResult, EventData
+from shared.common_models import model_to_dict, dict_to_model,  BaseResponse, MetricsData, ConfigData, TaskResult, AnalysisResult
+
 
 from agency_swarm.tools import BaseTool as Tool
 from pydantic import Field
@@ -115,7 +118,7 @@ The fix was correct but could not be committed.
 The Agency has successfully healed itself without human intervention!
 """
 
-    def _run_tests(self) -> Dict[str, Any]:
+    def _run_tests(self) -> BaseResponse:
         """Run the test suite and return results."""
         try:
             bash_tool = Bash(
@@ -157,7 +160,7 @@ The Agency has successfully healed itself without human intervention!
         except Exception as e:
             return f"❌ CRITICAL: Could not revert file: {e}"
 
-    def _commit_change(self) -> Dict[str, Any]:
+    def _commit_change(self) -> BaseResponse:
         """Commit the successful fix."""
         try:
             # Stage the changed file
@@ -221,7 +224,7 @@ Co-Authored-By: QualityEnforcerAgent <agent@agency.ai>"""
                 "error": f"Exception during commit: {e}"
             }
 
-    def _log_successful_healing(self, timestamp: str, test_result: Dict, commit_result: Dict):
+    def _log_successful_healing(self, timestamp: str, test_result: TestResult, commit_result: TaskResult):
         """Log successful autonomous healing for audit trail."""
 
         log_entry = {
@@ -364,7 +367,7 @@ This demonstrates the complete autonomous healing pipeline:
 The Agency can now heal itself without any human intervention!
 """
 
-    def _extract_problematic_code(self, file_content: str, error: Dict) -> Optional[str]:
+    def _extract_problematic_code(self, file_content: str, error: EventData) -> Optional[str]:
         """Extract the problematic line of code from file content."""
         lines = file_content.split('\n')
 
@@ -383,7 +386,7 @@ The Agency can now heal itself without any human intervention!
 
         return None
 
-    def _generate_simple_fix(self, original_line: str, error: Dict) -> Optional[str]:
+    def _generate_simple_fix(self, original_line: str, error: EventData) -> Optional[str]:
         """Generate a simple null-check fix for the problematic line."""
 
         if not original_line:

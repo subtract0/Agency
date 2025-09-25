@@ -1,0 +1,441 @@
+{
+  "total_files": 3,
+  "total_violations": 29,
+  "top_violators": [
+    [
+      "test_generator_agent/test_generator_agent.py",
+      18
+    ],
+    [
+      "auditor_agent/auditor_agent.py",
+      7
+    ],
+    [
+      "tools/apply_and_verify_patch.py",
+      4
+    ],
+    [
+      "run_learning_demo.py",
+      0
+    ],
+    [
+      "autonomous_soak_test.py",
+      0
+    ],
+    [
+      "run_tests.py",
+      0
+    ],
+    [
+      "agency.py",
+      0
+    ],
+    [
+      "agency_self_improve.py",
+      0
+    ],
+    [
+      "activate_guardian.py",
+      0
+    ],
+    [
+      "demo_unified.py",
+      0
+    ]
+  ],
+  "violations_by_file": {
+    "run_learning_demo.py": [],
+    "autonomous_soak_test.py": [],
+    "run_tests.py": [],
+    "agency.py": [],
+    "agency_self_improve.py": [],
+    "activate_guardian.py": [],
+    "demo_unified.py": [],
+    "test_autonomous_operation.py": [],
+    "refactor_dict_to_pydantic.py": [],
+    "refactor_high_priority.py": [],
+    "test_phase3_validation.py": [],
+    "test_intelligence_benchmarks_simple.py": [],
+    "test_learning_agent.py": [],
+    "fix_pattern_analysis.py": [],
+    "auditor_agent/compatibility.py": [],
+    "auditor_agent/models.py": [],
+    "auditor_agent/__init__.py": [],
+    "auditor_agent/auditor_agent.py": [
+      {
+        "line": 76,
+        "type": "return",
+        "function": "_analyze_necessary_compliance"
+      },
+      {
+        "line": 157,
+        "type": "parameter",
+        "function": "_calculate_qt_score",
+        "param": "necessary_analysis"
+      },
+      {
+        "line": 165,
+        "type": "parameter",
+        "function": "_prioritize_violations",
+        "param": "necessary_analysis"
+      },
+      {
+        "line": 165,
+        "type": "parameter",
+        "function": "_prioritize_violations",
+        "param": "analysis"
+      },
+      {
+        "line": 212,
+        "type": "parameter",
+        "function": "_estimate_edge_case_coverage",
+        "param": "analysis"
+      },
+      {
+        "line": 226,
+        "type": "parameter",
+        "function": "_estimate_error_testing",
+        "param": "analysis"
+      },
+      {
+        "line": 240,
+        "type": "parameter",
+        "function": "_estimate_async_coverage",
+        "param": "analysis"
+      }
+    ],
+    "auditor_agent/ast_analyzer.py": [],
+    "work_completion_summary_agent/work_completion_summary_agent.py": [],
+    "work_completion_summary_agent/__init__.py": [],
+    "tools/exit_plan_mode.py": [],
+    "tools/git.py": [],
+    "tools/undo_snapshot.py": [],
+    "tools/feature_inventory.py": [],
+    "tools/write.py": [],
+    "tools/bash.py": [],
+    "tools/notebook_read.py": [],
+    "tools/learning_dashboard.py": [],
+    "tools/__init__.py": [],
+    "tools/multi_edit.py": [],
+    "tools/edit.py": [],
+    "tools/grep.py": [],
+    "tools/ls.py": [],
+    "tools/apply_and_verify_patch.py": [
+      {
+        "line": 226,
+        "type": "parameter",
+        "function": "_log_successful_healing",
+        "param": "test_result"
+      },
+      {
+        "line": 226,
+        "type": "parameter",
+        "function": "_log_successful_healing",
+        "param": "commit_result"
+      },
+      {
+        "line": 369,
+        "type": "parameter",
+        "function": "_extract_problematic_code",
+        "param": "error"
+      },
+      {
+        "line": 388,
+        "type": "parameter",
+        "function": "_generate_simple_fix",
+        "param": "error"
+      }
+    ],
+    "tools/handoff_context_read.py": [],
+    "tools/glob.py": [],
+    "tools/claude_web_search.py": [],
+    "tools/context_handoff.py": [],
+    "tools/auto_fix_nonetype.py": [],
+    "tools/todo_write.py": [],
+    "tools/github_manager.py": [],
+    "tools/notebook_edit.py": [],
+    "tools/read.py": [],
+    "core/patterns.py": [],
+    "core/consolidate_tests.py": [],
+    "core/__init__.py": [],
+    "core/telemetry.py": [],
+    "core/unified_edit.py": [],
+    "core/self_healing.py": [],
+    "toolsmith_agent/toolsmith_agent.py": [],
+    "toolsmith_agent/__init__.py": [],
+    "agency_memory/memory.py": [],
+    "agency_memory/vector_store.py": [],
+    "agency_memory/swarm_memory.py": [],
+    "agency_memory/firestore_store.py": [],
+    "agency_memory/memory_v2.py": [],
+    "agency_memory/__init__.py": [],
+    "agency_memory/enhanced_memory_store.py": [],
+    "agency_memory/learning.py": [],
+    "tests/test_hooks_memory_logging.py": [],
+    "tests/test_context_handoff_edge_cases.py": [],
+    "tests/test_untracked_ingestion.py": [],
+    "tests/test_mutation_snapshot_hook_multi_ops.py": [],
+    "tests/test_read_tool.py": [],
+    "tests/test_constitutional_compliance.py": [],
+    "tests/test_auto_fix_nonetype.py": [],
+    "tests/test_glob_tool.py": [],
+    "tests/conftest.py": [],
+    "tests/test_firestore_mock_integration.py": [],
+    "tests/test_router_hook_edges.py": [],
+    "tests/test_system_reminder_hook.py": [],
+    "tests/test_merger_integration.py": [],
+    "tests/test_integrations.py": [],
+    "tests/test_pattern_intelligence_benchmarks.py": [],
+    "tests/test_circuit_breaker.py": [],
+    "tests/test_notebook_read_tool.py": [],
+    "tests/test_context_handoff_tool.py": [],
+    "tests/test_handoffs_minimal.py": [],
+    "tests/test_git_tool.py": [],
+    "tests/test_kanban_adapters.py": [],
+    "tests/test_instructions_selection.py": [],
+    "tests/test_undo_snapshot_tool.py": [],
+    "tests/test_memory_api.py": [],
+    "tests/test_planner_agent.py": [],
+    "tests/test_write_tool.py": [],
+    "tests/test_runtime_hints.py": [],
+    "tests/test_retry_controller_additional.py": [],
+    "tests/test_retry_controller.py": [],
+    "tests/test_kanban_smoke.py": [],
+    "tests/test_workspace_undo_errors.py": [],
+    "tests/test_master_e2e.py": [],
+    "tests/test_circuit_breaker_observability.py": [],
+    "tests/test_telemetry_safety.py": [],
+    "tests/run_memory_tests.py": [],
+    "tests/test_edit_tool.py": [],
+    "tests/test_toolsmith_agent_creation.py": [],
+    "tests/test_handoff_context_read_tool.py": [],
+    "tests/test_learning_hints.py": [],
+    "tests/test_swarm_memory.py": [],
+    "tests/test_ls_tool.py": [],
+    "tests/test_codehealer_integration.py": [],
+    "tests/test_grep_tool.py": [],
+    "tests/test_git_error_paths.py": [],
+    "tests/test_hooks_intent_retry_snapshot.py": [],
+    "tests/test_agency_fast.py": [],
+    "tests/test_orchestrator_system.py": [],
+    "tests/test_tool_integration.py": [],
+    "tests/test_auditor_agent.py": [],
+    "tests/test_agency.py": [],
+    "tests/test_apply_and_verify_patch.py": [],
+    "tests/test_agent_registry.py": [],
+    "tests/tool_integration_test.py": [],
+    "tests/test_e2e_router_agency_integration.py": [],
+    "tests/test_notebook_edit_tool.py": [],
+    "tests/test_pattern_extraction.py": [],
+    "tests/test_learning_consolidation.py": [],
+    "tests/test_learning_loop_integration.py": [],
+    "tests/test_event_detection.py": [],
+    "tests/test_autonomous_triggers.py": [],
+    "tests/test_todo_write_tool.py": [],
+    "tests/test_test_generator_agent.py": [],
+    "tests/test_registry_api.py": [],
+    "tests/test_bash_tool.py": [],
+    "tests/test_handoff_with_context_alias.py": [],
+    "tests/test_multi_edit_tool.py": [],
+    "shared/system_hooks.py": [],
+    "shared/pattern_models.py": [],
+    "shared/agent_utils.py": [],
+    "shared/retry_controller.py": [],
+    "shared/utils.py": [],
+    "shared/telemetry_models.py": [],
+    "shared/agent_context.py": [],
+    "shared/learning_models.py": [],
+    "shared/common_models.py": [],
+    "chief_architect_agent/chief_architect_agent.py": [],
+    "chief_architect_agent/__init__.py": [],
+    "healing_patterns/dict_to_pydantic_pattern.py": [],
+    "pattern_intelligence/pattern_store.py": [],
+    "pattern_intelligence/pattern_applicator.py": [],
+    "pattern_intelligence/__init__.py": [],
+    "pattern_intelligence/meta_learning.py": [],
+    "pattern_intelligence/coding_pattern.py": [],
+    "pattern_intelligence/intelligence_metrics.py": [],
+    "agency_code_agent/__init__.py": [],
+    "agency_code_agent/agency_code_agent.py": [],
+    "test_generator_agent/test_generator_agent.py": [
+      {
+        "line": 80,
+        "type": "return",
+        "function": "_analyze_source_file"
+      },
+      {
+        "line": 141,
+        "type": "parameter",
+        "function": "_generate_tests_for_violation",
+        "param": "violation"
+      },
+      {
+        "line": 141,
+        "type": "parameter",
+        "function": "_generate_tests_for_violation",
+        "param": "source_analysis"
+      },
+      {
+        "line": 161,
+        "type": "parameter",
+        "function": "_generate_basic_tests",
+        "param": "analysis"
+      },
+      {
+        "line": 191,
+        "type": "parameter",
+        "function": "_generate_edge_case_tests",
+        "param": "analysis"
+      },
+      {
+        "line": 209,
+        "type": "parameter",
+        "function": "_generate_comprehensive_tests",
+        "param": "analysis"
+      },
+      {
+        "line": 227,
+        "type": "parameter",
+        "function": "_generate_error_tests",
+        "param": "analysis"
+      },
+      {
+        "line": 244,
+        "type": "parameter",
+        "function": "_generate_state_tests",
+        "param": "analysis"
+      },
+      {
+        "line": 261,
+        "type": "parameter",
+        "function": "_generate_async_tests",
+        "param": "analysis"
+      },
+      {
+        "line": 279,
+        "type": "parameter",
+        "function": "_create_basic_test_code",
+        "param": "func"
+      },
+      {
+        "line": 306,
+        "type": "parameter",
+        "function": "_create_basic_method_test_code",
+        "param": "cls"
+      },
+      {
+        "line": 306,
+        "type": "parameter",
+        "function": "_create_basic_method_test_code",
+        "param": "method"
+      },
+      {
+        "line": 341,
+        "type": "parameter",
+        "function": "_create_edge_case_test_code",
+        "param": "func"
+      },
+      {
+        "line": 361,
+        "type": "parameter",
+        "function": "_create_comprehensive_test_code",
+        "param": "func"
+      },
+      {
+        "line": 379,
+        "type": "parameter",
+        "function": "_create_error_test_code",
+        "param": "func"
+      },
+      {
+        "line": 398,
+        "type": "parameter",
+        "function": "_create_state_test_code",
+        "param": "cls"
+      },
+      {
+        "line": 419,
+        "type": "parameter",
+        "function": "_create_async_test_code",
+        "param": "func"
+      },
+      {
+        "line": 463,
+        "type": "parameter",
+        "function": "_create_test_file_content",
+        "param": "analysis"
+      }
+    ],
+    "test_generator_agent/__init__.py": [],
+    "learning_agent/learning_agent.py": [],
+    "learning_agent/__init__.py": [],
+    "learning_loop/pattern_extraction.py": [],
+    "learning_loop/event_detection.py": [],
+    "learning_loop/__init__.py": [],
+    "learning_loop/autonomous_triggers.py": [],
+    "examples/test_calculator_healed.py": [],
+    "examples/test_calculator.py": [],
+    "examples/meta_learning_demo.py": [],
+    "examples/calculator.py": [],
+    "scripts/constitutional_check.py": [],
+    "subagent_example/subagent_example.py": [],
+    "meta_learning/agent_registry.py": [],
+    "meta_learning/registry_api.py": [],
+    "meta_learning/__init__.py": [],
+    "merger_agent/__init__.py": [],
+    "merger_agent/merger_agent.py": [],
+    "quality_enforcer_agent/__init__.py": [],
+    "quality_enforcer_agent/quality_enforcer_agent.py": [],
+    "planner_agent/planner_agent.py": [],
+    "planner_agent/__init__.py": [],
+    "tools/codegen/analyzer.py": [],
+    "tools/codegen/__init__.py": [],
+    "tools/codegen/test_gen.py": [],
+    "tools/codegen/scaffold.py": [],
+    "tools/agency_cli/tail.py": [],
+    "tools/agency_cli/__init__.py": [],
+    "tools/agency_cli/dashboard.py": [],
+    "tools/agency_cli/nav.py": [],
+    "tools/agency_cli/self_healing.py": [],
+    "tools/kanban/server.py": [],
+    "tools/kanban/runtime_hints.py": [],
+    "tools/kanban/untracked.py": [],
+    "tools/kanban/hints.py": [],
+    "tools/kanban/adapters.py": [],
+    "tools/telemetry/enhanced_aggregator.py": [],
+    "tools/telemetry/aggregator.py": [],
+    "tools/telemetry/__init__.py": [],
+    "tools/telemetry/aggregator_enterprise.py": [],
+    "tools/telemetry/sanitize.py": [],
+    "tools/orchestrator/graph.py": [],
+    "tools/orchestrator/__init__.py": [],
+    "tools/orchestrator/api.py": [],
+    "tools/orchestrator/scheduler.py": [],
+    "tests/unit/conftest.py": [],
+    "tests/unit/test_agent_initialization.py": [],
+    "tests/unit/test_tool_dispatcher.py": [],
+    "tests/unit/test_memory_integration.py": [],
+    "tests/unit/test_architecture_loop.py": [],
+    "tests/unit/test_chief_architect_agent.py": [],
+    "chief_architect_agent/tools/architecture_loop.py": [],
+    "chief_architect_agent/tools/__init__.py": [],
+    "pattern_intelligence/extractors/github_extractor.py": [],
+    "pattern_intelligence/extractors/local_codebase.py": [],
+    "pattern_intelligence/extractors/__init__.py": [],
+    "pattern_intelligence/extractors/base_extractor.py": [],
+    "pattern_intelligence/extractors/session_extractor.py": [],
+    "learning_agent/tools/telemetry_pattern_analyzer.py": [],
+    "learning_agent/tools/analyze_session.py": [],
+    "learning_agent/tools/store_knowledge.py": [],
+    "learning_agent/tools/__init__.py": [],
+    "learning_agent/tools/self_healing_pattern_extractor.py": [],
+    "learning_agent/tools/cross_session_learner.py": [],
+    "learning_agent/tools/consolidate_learning.py": [],
+    "learning_agent/tools/extract_insights.py": [],
+    "demos/archive/demo_pattern_intelligence.py": [],
+    "demos/archive/demo_learning_in_action.py": [],
+    "demos/archive/demo_self_healing.py": [],
+    "demos/archive/demo_autonomous_healing.py": [],
+    "demos/archive/demo_orchestrator.py": []
+  }
+}

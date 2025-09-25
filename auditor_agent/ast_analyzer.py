@@ -4,8 +4,8 @@ Extracts functions, classes, and behavioral coverage metrics.
 """
 
 import ast
-from typing import Dict, Any
 from pathlib import Path
+from auditor_agent.models import FileAnalysisResult, DirectoryAnalysisResult
 
 
 class ASTAnalyzer:
@@ -22,7 +22,7 @@ class ASTAnalyzer:
         self.behaviors = []
         self.complexity_metrics = {}
 
-    def analyze_file(self, file_path: str) -> Dict[str, Any]:
+    def analyze_file(self, file_path: str) -> FileAnalysisResult:
         """Analyze a single Python file."""
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -36,49 +36,43 @@ class ASTAnalyzer:
 
             is_test_file = self._is_test_file(file_path)
 
-            return {
-                "file_path": file_path,
-                "is_test_file": is_test_file,
-                "functions": visitor.functions,
-                "classes": visitor.classes,
-                "test_functions": visitor.test_functions if is_test_file else [],
-                "behaviors": len(visitor.functions),
-                "complexity": visitor.calculate_complexity(),
-                "lines_of_code": len(content.splitlines()),
-                "has_docstrings": visitor.has_docstrings(),
-                "imports": visitor.imports
-            }
+            return FileAnalysisResult(
+                file_path=file_path,
+                is_test_file=is_test_file,
+                functions=visitor.functions,
+                classes=visitor.classes,
+                test_functions=visitor.test_functions if is_test_file else [],
+                behaviors=len(visitor.functions),
+                complexity=visitor.calculate_complexity(),
+                lines_of_code=len(content.splitlines()),
+                has_docstrings=visitor.has_docstrings(),
+                imports=visitor.imports
+            )
         except Exception as e:
-            return {"error": str(e), "file_path": file_path}
+            return FileAnalysisResult(error=str(e), file_path=file_path)
 
-    def analyze_directory(self, dir_path: str) -> Dict[str, Any]:
+    def analyze_directory(self, dir_path: str) -> DirectoryAnalysisResult:
         """Analyze all Python files in directory."""
-        results = {
-            "source_files": [],
-            "test_files": [],
-            "total_behaviors": 0,
-            "total_test_functions": 0,
-            "coverage_ratio": 0.0
-        }
+        results = DirectoryAnalysisResult()
 
         for py_file in Path(dir_path).rglob("*.py"):
             if self._should_skip_file(str(py_file)):
                 continue
 
             analysis = self.analyze_file(str(py_file))
-            if "error" in analysis:
+            if analysis.error:
                 continue
 
-            if analysis["is_test_file"]:
-                results["test_files"].append(analysis)
-                results["total_test_functions"] += len(analysis["test_functions"])
+            if analysis.is_test_file:
+                results.test_files.append(analysis)
+                results.total_test_functions += len(analysis.test_functions)
             else:
-                results["source_files"].append(analysis)
-                results["total_behaviors"] += analysis["behaviors"]
+                results.source_files.append(analysis)
+                results.total_behaviors += analysis.behaviors
 
         # Calculate basic coverage ratio
-        if results["total_behaviors"] > 0:
-            results["coverage_ratio"] = results["total_test_functions"] / results["total_behaviors"]
+        if results.total_behaviors > 0:
+            results.coverage_ratio = results.total_test_functions / results.total_behaviors
 
         return results
 

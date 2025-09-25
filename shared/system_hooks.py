@@ -767,6 +767,39 @@ class MutationSnapshotHook(AgentHooks):
 
 # Factories for new hooks
 
+
+class RuntimeHintsHook(AgentHooks):
+    """Apply environment-level learning hints at session start.
+
+    Opt-in via ENABLE_RUNTIME_HINTS=true. Conservative: only applies action.env from hints
+    with confidence >= RUNTIME_HINTS_MIN_CONF (default 0.5). Uses LearningHintRegistry.
+    """
+
+    async def on_start(self, context: RunContextWrapper, agent) -> None:
+        try:
+            if os.getenv("ENABLE_RUNTIME_HINTS", "false").lower() != "true":
+                return
+            try:
+                from tools.kanban.hints import LearningHintRegistry  # lazy import
+                from tools.kanban.runtime_hints import apply_env_hints_from_registry
+            except Exception as e:
+                logger.debug(f"RuntimeHintsHook imports unavailable: {e}")
+                return
+            reg = LearningHintRegistry()
+            try:
+                reg.ensure_default_hints()
+            except Exception:
+                pass
+            applied = apply_env_hints_from_registry(reg)
+            if applied:
+                try:
+                    from core.telemetry import emit  # type: ignore
+                    emit("runtime_hints_applied", {"count": len(applied)})
+                except Exception:
+                    logger.debug("Telemetry emit failed for runtime_hints_applied")
+        except Exception:
+            return
+
 def create_intent_router_hook():
     return IntentRouterHook()
 
@@ -781,6 +814,10 @@ def create_tool_wrapper_hook():
 
 def create_mutation_snapshot_hook():
     return MutationSnapshotHook()
+
+
+def create_runtime_hints_hook():
+    return RuntimeHintsHook()
 
 
 if __name__ == "__main__":

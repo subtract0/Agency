@@ -19,6 +19,7 @@ from tools import (
     Grep,
     Glob,
     TodoWrite,
+    GitHubManager,
 )
 
 # Get the absolute path to the current file's directory
@@ -80,6 +81,7 @@ def create_merger_agent(
             Grep,
             Glob,
             TodoWrite,
+            GitHubManager,
         ],
         model_settings=create_model_settings(model, reasoning_effort),
     )

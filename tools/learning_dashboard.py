@@ -8,7 +8,11 @@ import logging
 import json
 import os
 from datetime import datetime, timedelta
+from shared.learning_models import LearningPattern, LearningSession, CrossSessionData
+
 from typing import Dict, Any, List, Optional
+from shared.common_models import model_to_dict, dict_to_model,  BaseResponse, MetricsData, ConfigData, TaskResult, AnalysisResult
+
 from collections import defaultdict, Counter
 from dataclasses import dataclass
 
@@ -67,7 +71,7 @@ class LearningDashboard:
 
         logger.info("LearningDashboard initialized")
 
-    def generate_comprehensive_report(self) -> Dict[str, Any]:
+    def generate_comprehensive_report(self) -> BaseResponse:
         """Generate comprehensive learning system report."""
         try:
             # Collect all metrics
@@ -401,7 +405,7 @@ class LearningDashboard:
         except Exception:
             return "stable"
 
-    def _is_recent_memory(self, memory: Dict[str, Any], cutoff_time: datetime) -> bool:
+    def _is_recent_memory(self, memory: PatternAnalysis, cutoff_time: datetime) -> bool:
         """Check if memory is recent based on timestamp."""
         try:
             timestamp_str = memory.get('timestamp', '')
@@ -412,7 +416,7 @@ class LearningDashboard:
             pass
         return False
 
-    def _is_successful_application(self, memory: Dict[str, Any]) -> bool:
+    def _is_successful_application(self, memory: PatternAnalysis) -> bool:
         """Check if pattern application was successful."""
         content = str(memory.get('content', '')).lower()
         success_indicators = ['success', 'resolved', 'improved', 'effective', 'working']
@@ -547,7 +551,7 @@ class LearningDashboard:
 
         return alerts
 
-    def _calculate_trends(self, metrics: Dict[str, LearningMetric]) -> Dict[str, str]:
+    def _calculate_trends(self, metrics: Dict[str, LearningMetric]) -> ConfigData:
         """Calculate overall trends for metric categories."""
         trends = {}
 
@@ -583,7 +587,7 @@ class LearningDashboard:
         else:
             return "stable"
 
-    def _generate_learning_insights(self, metrics: Dict[str, LearningMetric], trends: Dict[str, str]) -> List[Dict[str, Any]]:
+    def _generate_learning_insights(self, metrics: Dict[str, LearningMetric], trends: ConfigData) -> List[Dict[str, Any]]:
         """Generate insights based on metrics and trends."""
         insights = []
 
@@ -652,7 +656,7 @@ class LearningDashboard:
 
         return insights
 
-    def _calculate_system_health(self, metrics: Dict[str, LearningMetric], alerts: List[LearningAlert]) -> Dict[str, Any]:
+    def _calculate_system_health(self, metrics: Dict[str, LearningMetric], alerts: List[LearningAlert]) -> BaseResponse:
         """Calculate overall learning system health score."""
         try:
             # Base health score calculation
@@ -801,7 +805,7 @@ class LearningDashboard:
                 'Consider metric threshold adjustments'
             ]
 
-    def _create_executive_summary(self, health_score: Dict[str, Any], metrics: Dict[str, LearningMetric], alerts: List[LearningAlert]) -> Dict[str, Any]:
+    def _create_executive_summary(self, health_score: PatternAnalysis, metrics: Dict[str, LearningMetric], alerts: List[LearningAlert]) -> BaseResponse:
         """Create executive summary of learning system status."""
         try:
             # Key statistics

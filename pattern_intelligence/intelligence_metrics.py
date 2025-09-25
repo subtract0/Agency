@@ -269,7 +269,7 @@ class IntelligenceMetrics:
         if self.baseline_metrics is None:
             self.baseline_metrics = component_metrics.copy()
 
-    def get_intelligence_trajectory(self) -> Dict[str, Any]:
+    def get_intelligence_trajectory(self) -> Any:
         """Get intelligence development trajectory over time."""
         try:
             if len(self.measurement_history) < 2:
@@ -393,7 +393,7 @@ class IntelligenceMetrics:
             logger.error(f"Intelligence report export failed: {e}")
             return json.dumps({"error": str(e)}, indent=2)
 
-    def _classify_intelligence_level(self, aiq: float) -> Dict[str, Any]:
+    def _classify_intelligence_level(self, aiq: float) -> Any:
         """Classify intelligence level based on AIQ score."""
         if aiq >= 100:
             return {
@@ -426,7 +426,7 @@ class IntelligenceMetrics:
                 "capabilities": ["Basic pattern storage", "Simple operations"]
             }
 
-    def _generate_intelligence_recommendations(self, trajectory: Dict[str, Any]) -> List[str]:
+    def _generate_intelligence_recommendations(self, trajectory: Any) -> List[str]:
         """Generate recommendations for intelligence improvement."""
         recommendations = []
 

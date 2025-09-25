@@ -4,6 +4,9 @@ Cross-Session Learning Application for LearningAgent.
 Applies historical patterns and learnings from previous sessions to current operations.
 """
 from agency_swarm.tools import BaseTool
+from shared.learning_models import LearningPattern, LearningSession, CrossSessionData
+from shared.pattern_models import PatternData
+
 from pydantic import Field
 import json
 import os
@@ -102,7 +105,7 @@ class CrossSessionLearner(BaseTool):
                 "timestamp": datetime.now().isoformat()
             }, indent=2)
 
-    def _load_historical_learnings(self) -> Dict[str, Any]:
+    def _load_historical_learnings(self) -> LearningPattern:
         """Load historical learnings from various sources."""
         learning_results = {
             'learnings': [],
@@ -259,12 +262,12 @@ class CrossSessionLearner(BaseTool):
 
         return learnings
 
-    def _is_learning_object(self, obj: Dict[str, Any]) -> bool:
+    def _is_learning_object(self, obj: LearningPattern) -> bool:
         """Check if object is a structured learning object."""
         learning_indicators = ['learning_id', 'pattern', 'actionable_insight', 'confidence']
         return any(indicator in obj for indicator in learning_indicators)
 
-    def _find_relevant_patterns(self, context_data: Dict[str, Any], learning_results: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _find_relevant_patterns(self, context_data: PatternData, learning_results: PatternData) -> List[PatternData]:
         """Find patterns relevant to current context."""
         relevant_patterns = []
 
@@ -292,7 +295,7 @@ class CrossSessionLearner(BaseTool):
 
         return relevant_patterns
 
-    def _extract_context_features(self, context_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_context_features(self, context_data: Any) -> Any:
         """Extract key features from current context."""
         features = {
             'keywords': set(),
@@ -354,7 +357,7 @@ class CrossSessionLearner(BaseTool):
 
         return features
 
-    def _calculate_relevance_score(self, context_features: Dict[str, Any], learning: Dict[str, Any]) -> float:
+    def _calculate_relevance_score(self, context_features: LearningPattern, learning: LearningPattern) -> float:
         """Calculate relevance score between context and learning."""
         try:
             score = 0.0
@@ -405,7 +408,7 @@ class CrossSessionLearner(BaseTool):
             logger.warning(f"Error calculating relevance score: {e}")
             return 0.0
 
-    def _extract_tools_from_learning(self, learning: Dict[str, Any]) -> set:
+    def _extract_tools_from_learning(self, learning: LearningPattern) -> set:
         """Extract tool names from learning object."""
         tools = set()
 
@@ -418,7 +421,7 @@ class CrossSessionLearner(BaseTool):
 
         return tools
 
-    def _extract_agents_from_learning(self, learning: Dict[str, Any]) -> set:
+    def _extract_agents_from_learning(self, learning: LearningPattern) -> set:
         """Extract agent names from learning object."""
         agents = set()
 
@@ -431,7 +434,7 @@ class CrossSessionLearner(BaseTool):
 
         return agents
 
-    def _explain_match_reason(self, context_features: Dict[str, Any], learning: Dict[str, Any]) -> str:
+    def _explain_match_reason(self, context_features: LearningPattern, learning: LearningPattern) -> str:
         """Explain why a learning was matched to the context."""
         reasons = []
 
@@ -456,7 +459,7 @@ class CrossSessionLearner(BaseTool):
 
         return '; '.join(reasons) if reasons else 'General similarity'
 
-    def _generate_recommendations(self, context_data: Dict[str, Any], relevant_patterns: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _generate_recommendations(self, context_data: PatternData, relevant_patterns: List[PatternData]) -> List[PatternData]:
         """Generate actionable recommendations from relevant patterns."""
         recommendations = []
 
@@ -489,7 +492,7 @@ class CrossSessionLearner(BaseTool):
 
         return recommendations[:self.max_recommendations]
 
-    def _create_group_recommendation(self, pattern_type: str, patterns: List[Dict[str, Any]],
+    def _create_group_recommendation(self, pattern_type: str, patterns: List[PatternData],
                                    context_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Create recommendation based on a group of similar patterns."""
         try:
@@ -522,7 +525,7 @@ class CrossSessionLearner(BaseTool):
             logger.warning(f"Error creating group recommendation: {e}")
             return None
 
-    def _create_individual_recommendation(self, pattern: Dict[str, Any],
+    def _create_individual_recommendation(self, pattern: PatternData,
                                         context_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Create recommendation based on individual high-confidence pattern."""
         try:
@@ -595,7 +598,7 @@ class CrossSessionLearner(BaseTool):
 
         return insights[:5]  # Limit to 5 insights
 
-    def _extract_expected_benefit(self, pattern: Dict[str, Any]) -> str:
+    def _extract_expected_benefit(self, pattern: PatternData) -> str:
         """Extract expected benefit from pattern."""
         # Look for success metrics or expected improvements
         success_metrics = pattern.get('success_metrics', [])
@@ -638,7 +641,7 @@ class CrossSessionLearner(BaseTool):
         """Filter recommendations by confidence threshold."""
         return [rec for rec in recommendations if rec.get('confidence', 0) >= self.confidence_threshold]
 
-    def _summarize_pattern_matches(self, relevant_patterns: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _summarize_pattern_matches(self, relevant_patterns: List[PatternData]) -> PatternData:
         """Summarize how patterns matched to current context."""
         summary = {
             'total_matches': len(relevant_patterns),
@@ -672,7 +675,7 @@ class CrossSessionLearner(BaseTool):
 
         return summary
 
-    def _create_application_record(self, context_data: Dict[str, Any], recommendations: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _create_application_record(self, context_data: Any, recommendations: List[Any]) -> Any:
         """Create record for tracking learning application effectiveness."""
         record = {
             'application_id': f"cross_session_app_{int(datetime.now().timestamp())}",
@@ -688,7 +691,7 @@ class CrossSessionLearner(BaseTool):
 
         return record
 
-    def _summarize_context(self, context_data: Dict[str, Any]) -> str:
+    def _summarize_context(self, context_data: Any) -> str:
         """Create brief summary of context for tracking."""
         try:
             # Extract key elements
@@ -706,7 +709,7 @@ class CrossSessionLearner(BaseTool):
         except Exception:
             return 'Context summary unavailable'
 
-    def _calculate_learning_effectiveness(self) -> Dict[str, Any]:
+    def _calculate_learning_effectiveness(self) -> LearningPattern:
         """Calculate effectiveness of previous learning applications."""
         try:
             # This would track effectiveness over time

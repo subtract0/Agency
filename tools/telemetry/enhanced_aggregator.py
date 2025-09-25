@@ -8,6 +8,8 @@ This module extends the basic telemetry aggregator with:
 """
 
 from __future__ import annotations
+from shared.telemetry_models import TelemetryEvent, TelemetryMetrics, TelemetryReport
+
 
 import json
 import numpy as np
@@ -65,7 +67,7 @@ class AnomalyDetection:
     deviation_score: float  # Standard deviations from expected
     is_anomaly: bool
     severity: str  # 'low', 'medium', 'high'
-    historical_context: Dict[str, Any]
+    historical_context: PatternAnalysis
 
 
 class EnhancedTelemetryAggregator:
@@ -168,7 +170,7 @@ class EnhancedTelemetryAggregator:
             # Skip invalid events
             pass
 
-    def _estimate_event_cost(self, usage: Dict[str, Any], model: str) -> float:
+    def _estimate_event_cost(self, usage: PatternAnalysis, model: str) -> float:
         """Estimate cost for a single event."""
         # Simple cost estimation - this could be enhanced with real pricing data
         tokens = usage.get('total_tokens', 0)
@@ -224,7 +226,7 @@ class EnhancedTelemetryAggregator:
 
         return enhanced_result
 
-    def _update_timeseries_from_aggregation(self, aggregation: Dict[str, Any], timestamp: datetime) -> None:
+    def _update_timeseries_from_aggregation(self, aggregation: PatternAnalysis, timestamp: datetime) -> None:
         """Update time series with current aggregation data."""
         try:
             # Extract key metrics from current aggregation

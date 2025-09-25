@@ -7,6 +7,8 @@ import dataclasses
 import os
 import re
 from typing import Dict, List, Optional
+from shared.common_models import model_to_dict, dict_to_model,  BaseResponse, MetricsData, ConfigData, TaskResult, AnalysisResult
+
 
 
 @dataclasses.dataclass
@@ -46,7 +48,7 @@ class {{class_name}}:
         # TODO: Add initialization logic
         pass
 
-    def run(self, **params: Any) -> Dict[str, Any]:
+    def run(self, **params: Any) -> BaseResponse:
         """
         Execute {{name}} operation.
 

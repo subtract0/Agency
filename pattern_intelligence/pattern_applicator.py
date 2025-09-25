@@ -12,6 +12,7 @@ import logging
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 import json
+from shared.pattern_models import PatternData
 
 from .pattern_store import PatternStore, PatternSearchResult
 from .coding_pattern import CodingPattern, ProblemContext
@@ -286,7 +287,7 @@ class PatternApplicator:
             logger.error(f"Pattern combination suggestion failed: {e}")
             return []
 
-    def get_application_stats(self) -> Dict[str, Any]:
+    def get_application_stats(self) -> Any:
         """Get statistics about pattern applications."""
         if not self.application_history:
             return {"total_applications": 0, "message": "No applications recorded yet"}

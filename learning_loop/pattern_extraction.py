@@ -16,6 +16,8 @@ import re
 import json
 import uuid
 from datetime import datetime
+from shared.learning_models import LearningPattern, LearningSession, CrossSessionData
+
 from typing import Dict, List, Optional, Any, Union
 from dataclasses import dataclass, asdict
 from pathlib import Path

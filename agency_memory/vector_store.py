@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class SimilarityResult:
     """Result from similarity search with score and metadata."""
 
-    memory: Dict[str, Any]
+    memory: Any
     similarity_score: float
     search_type: str  # 'semantic', 'keyword', or 'hybrid'
 
@@ -43,7 +43,7 @@ class VectorStore:
         """
         self._embeddings: Dict[str, List[float]] = {}
         self._memory_texts: Dict[str, str] = {}
-        self._memory_records: Dict[str, Dict[str, Any]] = {}
+        self._memory_records: Dict[str, Any] = {}
         self._embedding_provider = embedding_provider
         self._embedding_function = None
 
@@ -123,7 +123,7 @@ class VectorStore:
         except ImportError:
             raise ImportError("openai not available. Install with: pip install openai")
 
-    def add_memory(self, memory_key: str, memory_content: Dict[str, Any]) -> None:
+    def add_memory(self, memory_key: str, memory_content: Any) -> None:
         """
         Add memory to vector store for search.
 
@@ -147,7 +147,7 @@ class VectorStore:
             except Exception as e:
                 logger.warning(f"Failed to generate embedding for {memory_key}: {e}")
 
-    def _extract_searchable_text(self, memory: Dict[str, Any]) -> str:
+    def _extract_searchable_text(self, memory: Any) -> str:
         """
         Extract searchable text from memory record.
 
@@ -411,7 +411,7 @@ class VectorStore:
         self._memory_texts.pop(memory_key, None)
         self._memory_records.pop(memory_key, None)
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> Any:
         """
         Get vector store statistics.
 

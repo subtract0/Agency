@@ -7,11 +7,12 @@ import logging
 from collections import Counter, defaultdict
 from datetime import datetime
 from typing import Any, Dict, List
+from shared.learning_models import LearningPattern
 
 logger = logging.getLogger(__name__)
 
 
-def consolidate_learnings(memories: List[Dict[str, Any]]) -> Dict[str, Any]:
+def consolidate_learnings(memories: List[LearningPattern]) -> LearningPattern:
     """
     Consolidate learnings from memory records into structured summary.
 

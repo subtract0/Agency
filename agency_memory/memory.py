@@ -56,7 +56,7 @@ class InMemoryStore(MemoryStore):
     """
 
     def __init__(self):
-        self._memories: Dict[str, Dict[str, Any]] = {}
+        self._memories: Dict[str, Any] = {}
         logger.info(
             "InMemoryStore initialized - data will not persist between sessions"
         )

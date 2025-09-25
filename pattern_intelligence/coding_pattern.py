@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Union
 from datetime import datetime
 import hashlib
 import json
+from shared.pattern_models import PatternData
 
 
 @dataclass
@@ -147,7 +148,7 @@ class CodingPattern:
 
         return f"{context_text} {solution_text} {' '.join(outcome_parts)} {tag_text}"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> Any:
         """Convert to dictionary for storage."""
         return {
             "pattern_id": self.metadata.pattern_id,
@@ -194,7 +195,7 @@ class CodingPattern:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "CodingPattern":
+    def from_dict(cls, data: PatternData) -> "CodingPattern":
         """Create CodingPattern from dictionary."""
         context_data = data["context"]
         solution_data = data["solution"]

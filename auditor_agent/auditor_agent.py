@@ -4,7 +4,8 @@ AuditorAgent - Quality Assurance Agent for NECESSARY pattern analysis and Q(T) s
 
 import os
 import json
-from typing import Dict, List
+from typing import Dict, List, Any
+from shared.common_models import AnalysisResult, ValidationResult
 
 from agency_swarm import Agent
 from agency_swarm.tools import BaseTool as Tool
@@ -18,7 +19,7 @@ from shared.agent_utils import (
     create_model_settings,
     get_model_instance,
 )
-from shared.system_hooks import create_system_reminder_hook, create_memory_integration_hook, create_composite_hook
+from shared.system_hooks import create_system_reminder_hook, create_memory_integration_hook, create_composite_hook, create_runtime_hints_hook
 from tools import (
     Bash,
     Edit,
@@ -29,6 +30,7 @@ from tools import (
 )
 
 from .ast_analyzer import ASTAnalyzer
+from .compatibility import to_dict
 
 
 class AnalyzeCodebase(Tool):
@@ -45,7 +47,10 @@ class AnalyzeCodebase(Tool):
         analyzer = ASTAnalyzer()
 
         # Phase 1: Analyze codebase structure
-        analysis = analyzer.analyze_directory(self.target_path)
+        analysis_result = analyzer.analyze_directory(self.target_path)
+
+        # Convert to dict for compatibility
+        analysis = to_dict(analysis_result)
 
         # Phase 2: Calculate NECESSARY compliance
         necessary_analysis = self._analyze_necessary_compliance(analysis)
@@ -69,10 +74,15 @@ class AnalyzeCodebase(Tool):
 
         return json.dumps(audit_report, indent=2)
 
-    def _analyze_necessary_compliance(self, analysis: Dict) -> Dict:
+    def _analyze_necessary_compliance(self, analysis) -> AnalysisResult:
         """Analyze compliance with NECESSARY pattern."""
-        total_behaviors = analysis["total_behaviors"]
-        total_tests = analysis["total_test_functions"]
+        # Handle both dict and Pydantic model
+        if hasattr(analysis, 'total_behaviors'):
+            total_behaviors = analysis.total_behaviors
+            total_tests = analysis.total_test_functions
+        else:
+            total_behaviors = analysis["total_behaviors"]
+            total_tests = analysis["total_test_functions"]
 
         if total_behaviors == 0:
             return {prop: {"score": 0.0, "violations": ["No behaviors found"]} for prop in "NECESSARY"}
@@ -145,7 +155,7 @@ class AnalyzeCodebase(Tool):
 
         return necessary_scores
 
-    def _calculate_qt_score(self, necessary_analysis: Dict) -> float:
+    def _calculate_qt_score(self, necessary_analysis: AnalysisResult) -> float:
         """Calculate Q(T) score from NECESSARY analysis."""
         if not necessary_analysis:
             return 0.0
@@ -153,7 +163,7 @@ class AnalyzeCodebase(Tool):
         total_score = sum(prop["score"] for prop in necessary_analysis.values())
         return total_score / len(necessary_analysis)
 
-    def _prioritize_violations(self, necessary_analysis: Dict, analysis: Dict) -> List[Dict]:
+    def _prioritize_violations(self, necessary_analysis: AnalysisResult, analysis: AnalysisResult) -> List[ValidationResult]:
         """Generate prioritized list of violations."""
         violations = []
 
@@ -176,7 +186,7 @@ class AnalyzeCodebase(Tool):
 
         return violations
 
-    def _generate_recommendations(self, qt_score: float, violations: List[Dict]) -> List[str]:
+    def _generate_recommendations(self, qt_score: float, violations: List[ValidationResult]) -> List[str]:
         """Generate actionable recommendations."""
         recommendations = []
 
@@ -200,7 +210,7 @@ class AnalyzeCodebase(Tool):
 
         return recommendations
 
-    def _estimate_edge_case_coverage(self, analysis: Dict) -> float:
+    def _estimate_edge_case_coverage(self, analysis: AnalysisResult) -> float:
         """Estimate edge case coverage based on test patterns."""
         # Heuristic: look for test functions with "edge", "boundary", "limit" keywords
         edge_indicators = 0
@@ -214,7 +224,7 @@ class AnalyzeCodebase(Tool):
 
         return min(1.0, edge_indicators / max(1, total_tests / 4))  # Expect 25% edge case tests
 
-    def _estimate_error_testing(self, analysis: Dict) -> float:
+    def _estimate_error_testing(self, analysis: AnalysisResult) -> float:
         """Estimate error condition testing coverage."""
         # Heuristic: look for test functions with error/exception keywords
         error_indicators = 0
@@ -228,7 +238,7 @@ class AnalyzeCodebase(Tool):
 
         return min(1.0, error_indicators / max(1, total_tests / 5))  # Expect 20% error tests
 
-    def _estimate_async_coverage(self, analysis: Dict) -> float:
+    def _estimate_async_coverage(self, analysis: AnalysisResult) -> float:
         """Estimate async operation testing coverage."""
         async_functions = 0
         async_tests = 0
@@ -282,7 +292,8 @@ def create_auditor_agent(
     # Create hooks with memory integration
     reminder_hook = create_system_reminder_hook()
     memory_hook = create_memory_integration_hook(agent_context)
-    combined_hook = create_composite_hook([reminder_hook, memory_hook])
+    runtime_hints_hook = create_runtime_hints_hook()
+    combined_hook = create_composite_hook([reminder_hook, memory_hook, runtime_hints_hook])
 
     # Log agent creation
     agent_context.store_memory(

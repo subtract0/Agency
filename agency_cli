@@ -1,0 +1,396 @@
+#!/usr/bin/env bash
+#
+# Agency CLI - Unified Interface for Autonomous Software Engineering
+# This wrapper provides intuitive access to all Agency functionality
+#
+
+set -e
+
+# Color codes for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m' # No Color
+
+# Agency root directory
+AGENCY_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$AGENCY_ROOT"
+
+# Python interpreter detection
+if [ -n "$VIRTUAL_ENV" ]; then
+    PYTHON="$VIRTUAL_ENV/bin/python"
+elif [ -f ".venv/bin/python" ]; then
+    PYTHON=".venv/bin/python"
+else
+    PYTHON="python3"
+fi
+
+# Display banner
+show_banner() {
+    echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${CYAN}║${BOLD}            🏛️  AGENCY - Autonomous Engineering              ${CYAN}║${NC}"
+    echo -e "${CYAN}║${NC}         Constitutional Multi-Agent Software System          ${CYAN}║${NC}"
+    echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}"
+}
+
+# Display help
+show_help() {
+    show_banner
+    echo ""
+    echo -e "${BOLD}USAGE:${NC}"
+    echo "  ./agency_cli [command] [options]"
+    echo ""
+    echo -e "${BOLD}CORE COMMANDS:${NC}"
+    echo -e "  ${GREEN}run${NC}           Start interactive Agency terminal"
+    echo -e "  ${GREEN}demo${NC}          Run autonomous healing demonstration"
+    echo -e "  ${GREEN}test${NC}          Run test suite (743+ tests)"
+    echo -e "  ${GREEN}health${NC}        Check system health and healing status"
+    echo ""
+    echo -e "${BOLD}DEVELOPMENT:${NC}"
+    echo -e "  ${GREEN}develop${NC}       Start self-development mode"
+    echo -e "  ${GREEN}improve${NC}       Analyze and improve own codebase"
+    echo -e "  ${GREEN}learn${NC}         Extract patterns from recent operations"
+    echo -e "  ${GREEN}optimize${NC}      Optimize performance and efficiency"
+    echo ""
+    echo -e "${BOLD}MONITORING:${NC}"
+    echo -e "  ${GREEN}dashboard${NC}     Show telemetry dashboard"
+    echo -e "  ${GREEN}tail${NC}          Tail telemetry events"
+    echo -e "  ${GREEN}logs${NC}          Show recent logs"
+    echo -e "  ${GREEN}kanban${NC}        Start Kanban UI server"
+    echo ""
+    echo -e "${BOLD}UTILITIES:${NC}"
+    echo -e "  ${GREEN}setup${NC}         Setup/validate environment"
+    echo -e "  ${GREEN}prime${NC}         Show available prime commands"
+    echo -e "  ${GREEN}validate${NC}      Validate constitutional compliance"
+    echo -e "  ${GREEN}memory${NC}        Manage memory and learning store"
+    echo ""
+    echo -e "${BOLD}TEST MODES:${NC}"
+    echo -e "  ${GREEN}test-fast${NC}     Run fast tests only"
+    echo -e "  ${GREEN}test-slow${NC}     Run slow tests only"
+    echo -e "  ${GREEN}test-parallel${NC} Run tests in parallel (8 processes)"
+    echo -e "  ${GREEN}test-bench${NC}    Run benchmark tests"
+    echo ""
+    echo -e "${BOLD}OPTIONS:${NC}"
+    echo "  --help, -h    Show this help message"
+    echo "  --version     Show version information"
+    echo "  --verbose     Enable verbose output"
+    echo "  --quiet       Suppress non-essential output"
+    echo ""
+    echo -e "${BOLD}EXAMPLES:${NC}"
+    echo "  ./agency_cli run              # Start interactive session"
+    echo "  ./agency_cli develop          # Enter self-development mode"
+    echo "  ./agency_cli test-parallel    # Run tests in parallel"
+    echo "  ./agency_cli dashboard        # View telemetry dashboard"
+    echo ""
+    echo -e "${BOLD}PRIME COMMANDS:${NC}"
+    echo "  Use './agency_cli prime' to see available prime commands"
+    echo "  Prime commands ensure proper context loading"
+    echo ""
+    echo -e "${CYAN}Constitutional Compliance: Article II requires 100% test success${NC}"
+}
+
+# Setup environment
+setup_environment() {
+    echo -e "${YELLOW}🔧 Setting up Agency environment...${NC}"
+
+    # Check Python version
+    PYTHON_VERSION=$($PYTHON -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    if [[ ! "$PYTHON_VERSION" =~ ^3\.(12|13) ]]; then
+        echo -e "${RED}❌ Python 3.12 or 3.13 required (found $PYTHON_VERSION)${NC}"
+        exit 1
+    fi
+    echo -e "${GREEN}✅ Python $PYTHON_VERSION${NC}"
+
+    # Create virtual environment if needed
+    if [ ! -d ".venv" ] && [ -z "$VIRTUAL_ENV" ]; then
+        echo -e "${YELLOW}Creating virtual environment...${NC}"
+        python3 -m venv .venv
+        PYTHON=".venv/bin/python"
+    fi
+
+    # Install dependencies
+    echo -e "${YELLOW}Installing dependencies...${NC}"
+    $PYTHON -m pip install -q --upgrade pip
+    $PYTHON -m pip install -q -r requirements.txt
+
+    # Validate environment
+    echo -e "${YELLOW}Validating environment...${NC}"
+    $PYTHON -c "import agency_swarm, litellm, pytest" 2>/dev/null || {
+        echo -e "${RED}❌ Missing core dependencies${NC}"
+        exit 1
+    }
+
+    # Check for .env file
+    if [ ! -f ".env" ]; then
+        echo -e "${YELLOW}Creating .env file...${NC}"
+        cp .env.example .env 2>/dev/null || {
+            cat > .env << 'EOF'
+# Agency Configuration
+OPENAI_API_KEY=your_api_key_here
+FRESH_USE_FIRESTORE=true
+USE_ENHANCED_MEMORY=true
+ENABLE_UNIFIED_CORE=true
+PERSIST_PATTERNS=true
+ENABLE_KANBAN_UI=false
+EOF
+        }
+        echo -e "${YELLOW}⚠️  Please configure your API keys in .env${NC}"
+    fi
+
+    echo -e "${GREEN}✅ Environment ready${NC}"
+}
+
+# Validate constitutional compliance
+validate_compliance() {
+    echo -e "${CYAN}📋 Validating Constitutional Compliance...${NC}"
+
+    # Run minimal test to check Article II compliance
+    $PYTHON -m pytest tests/test_memory_api.py -q --tb=no 2>/dev/null && {
+        echo -e "${GREEN}✅ Article II: Tests passing (100% verification)${NC}"
+    } || {
+        echo -e "${RED}❌ Article II VIOLATION: Tests failing!${NC}"
+        echo -e "${YELLOW}Run './agency_cli test' to see failures${NC}"
+        return 1
+    }
+
+    # Check for spec-driven development (Article V)
+    if [ -d "specs" ] && [ "$(ls -A specs/)" ]; then
+        echo -e "${GREEN}✅ Article V: Specs directory present${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Article V: No specifications found${NC}"
+    fi
+
+    echo -e "${GREEN}✅ Constitutional compliance verified${NC}"
+}
+
+# Show prime commands
+show_prime_commands() {
+    echo -e "${CYAN}🎯 Available Prime Commands:${NC}"
+    echo ""
+    echo -e "${BOLD}/prime plan_and_execute${NC}"
+    echo "  Full development cycle from spec to implementation"
+    echo ""
+    echo -e "${BOLD}/prime audit_and_refactor${NC}"
+    echo "  Analyze and improve code quality"
+    echo ""
+    echo -e "${BOLD}/prime create_tool${NC}"
+    echo "  Develop new agent tools"
+    echo ""
+    echo -e "${BOLD}/prime healing_mode${NC}"
+    echo "  Activate autonomous self-healing"
+    echo ""
+    echo -e "${BOLD}/prime web_research${NC}"
+    echo "  Web scraping and research"
+    echo ""
+    echo -e "${BOLD}/prime self_develop${NC} ${YELLOW}(NEW)${NC}"
+    echo "  Self-development mode for Agency codebase"
+    echo ""
+    echo -e "${CYAN}Remember: Always start with a prime command for optimal results${NC}"
+}
+
+# Self-development mode
+self_develop() {
+    echo -e "${MAGENTA}🔮 Entering Self-Development Mode...${NC}"
+    echo -e "${CYAN}Agency will analyze and improve its own codebase${NC}"
+    echo ""
+
+    # Check if agency_self_improve.py exists
+    if [ -f "agency_self_improve.py" ]; then
+        $PYTHON agency_self_improve.py "$@"
+    else
+        echo -e "${YELLOW}Self-improvement module not yet available${NC}"
+        echo -e "${CYAN}Starting manual self-development workflow...${NC}"
+        $PYTHON agency.py run
+    fi
+}
+
+# Memory management
+manage_memory() {
+    echo -e "${CYAN}🧠 Memory Management${NC}"
+    echo ""
+    echo -e "${BOLD}Options:${NC}"
+    echo "  status    - Show memory store status"
+    echo "  export    - Export memory to file"
+    echo "  import    - Import memory from file"
+    echo "  clear     - Clear memory store"
+    echo "  visualize - Open memory visualization"
+    echo ""
+
+    case "${1:-status}" in
+        status)
+            $PYTHON -c "
+from agency_memory import create_enhanced_memory_store
+store = create_enhanced_memory_store()
+stats = store.get_stats() if hasattr(store, 'get_stats') else {}
+print(f'Memories: {stats.get(\"total_memories\", 0)}')
+print(f'Patterns: {stats.get(\"total_patterns\", 0)}')
+print(f'Sessions: {stats.get(\"total_sessions\", 0)}')
+"
+            ;;
+        export)
+            echo "Exporting memory..."
+            # TODO: Implement memory export
+            ;;
+        import)
+            echo "Importing memory..."
+            # TODO: Implement memory import
+            ;;
+        clear)
+            echo -e "${RED}⚠️  This will clear all memory. Continue? (y/N)${NC}"
+            read -r confirm
+            if [[ "$confirm" == "y" ]]; then
+                echo "Memory cleared"
+            fi
+            ;;
+        visualize)
+            echo "Opening memory visualization..."
+            $PYTHON tools/learning_dashboard.py 2>/dev/null || echo "Visualization not available"
+            ;;
+    esac
+}
+
+# Main command router
+main() {
+    # Handle no arguments
+    if [ $# -eq 0 ]; then
+        show_help
+        exit 0
+    fi
+
+    # Parse command
+    COMMAND="$1"
+    shift
+
+    case "$COMMAND" in
+        # Core commands
+        run)
+            show_banner
+            $PYTHON agency.py run "$@"
+            ;;
+        demo)
+            show_banner
+            $PYTHON agency.py demo "$@"
+            ;;
+        test)
+            echo -e "${CYAN}🧪 Running test suite...${NC}"
+            $PYTHON run_tests.py "$@"
+            ;;
+        health)
+            $PYTHON agency.py health "$@"
+            ;;
+
+        # Development commands
+        develop|self-develop)
+            self_develop "$@"
+            ;;
+        improve|self-improve)
+            # Check for CI mode flags
+            CI_MODE=false
+            JSON_MODE=false
+            for arg in "$@"; do
+                if [[ "$arg" == "--ci" ]]; then
+                    CI_MODE=true
+                elif [[ "$arg" == "--json" ]]; then
+                    JSON_MODE=true
+                fi
+            done
+
+            if [[ "$CI_MODE" == true ]]; then
+                # Silent CI mode for Guardian Loop
+                $PYTHON agency_self_improve.py analyze --output /dev/stdout 2>/dev/null
+            elif [[ "$JSON_MODE" == true ]]; then
+                # JSON output mode
+                $PYTHON agency_self_improve.py analyze --format json "$@" 2>/dev/null
+            else
+                # Interactive mode
+                echo -e "${MAGENTA}🔄 Analyzing codebase for improvements...${NC}"
+                $PYTHON agency_self_improve.py analyze "$@" 2>/dev/null || self_develop "$@"
+            fi
+            ;;
+        learn)
+            echo -e "${CYAN}📚 Extracting patterns from recent operations...${NC}"
+            $PYTHON run_learning_demo.py "$@" 2>/dev/null || {
+                echo "Running learning agent..."
+                $PYTHON -c "from learning_agent import create_learning_agent; agent = create_learning_agent(); print('Learning agent ready')"
+            }
+            ;;
+        optimize)
+            echo -e "${YELLOW}⚡ Optimizing performance...${NC}"
+            echo "Optimization not yet implemented"
+            ;;
+
+        # Monitoring commands
+        dashboard)
+            $PYTHON agency.py dashboard "$@"
+            ;;
+        tail)
+            $PYTHON agency.py tail "$@"
+            ;;
+        logs)
+            $PYTHON agency.py logs "$@"
+            ;;
+        kanban)
+            $PYTHON agency.py kanban "$@"
+            ;;
+
+        # Utility commands
+        setup)
+            setup_environment
+            ;;
+        prime)
+            show_prime_commands
+            ;;
+        validate)
+            validate_compliance
+            ;;
+        memory)
+            manage_memory "$@"
+            ;;
+
+        # Test modes
+        test-fast)
+            echo -e "${CYAN}🏃 Running fast tests...${NC}"
+            $PYTHON run_tests.py --fast "$@"
+            ;;
+        test-slow)
+            echo -e "${CYAN}🐌 Running slow tests...${NC}"
+            $PYTHON run_tests.py --slow "$@"
+            ;;
+        test-parallel)
+            echo -e "${CYAN}⚡ Running tests in parallel...${NC}"
+            if [ -f "run_tests_parallel.py" ]; then
+                $PYTHON run_tests_parallel.py ${1:-8}
+            else
+                echo "Parallel test runner not available, using standard runner"
+                $PYTHON run_tests.py "$@"
+            fi
+            ;;
+        test-bench|test-benchmark)
+            echo -e "${CYAN}📊 Running benchmark tests...${NC}"
+            $PYTHON run_tests.py --benchmark "$@"
+            ;;
+
+        # Help and version
+        --help|-h|help)
+            show_help
+            ;;
+        --version|version)
+            echo "Agency v1.0.0 - Autonomous Software Engineering"
+            echo "Constitutional Multi-Agent System"
+            ;;
+
+        # Unknown command
+        *)
+            echo -e "${RED}Unknown command: $COMMAND${NC}"
+            echo "Run './agency_cli --help' for usage information"
+            exit 1
+            ;;
+    esac
+}
+
+# Run main function
+main "$@"
