@@ -220,7 +220,7 @@ class UnifiedEdit:
         file_path: str,
         old_string: str,
         new_string: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Validate an edit before applying it.
 
@@ -280,8 +280,8 @@ class UnifiedEdit:
 
     def batch_edit(
         self,
-        operations: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        operations: List[dict[str, Any]]
+    ) -> List[dict[str, Any]]:
         """
         Perform batch edit operations across multiple files.
 
