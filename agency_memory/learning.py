@@ -160,7 +160,13 @@ def consolidate_learnings(memories: List[Dict[str, Any]]) -> Dict[str, Any]:
         if 'time_distribution' in patterns and isinstance(patterns['time_distribution'], dict):
             # Hoist time distribution fields to patterns level
             time_dist = patterns['time_distribution']
-            patterns['hourly_distribution'] = time_dist.get('hourly', {})
+
+            # Fix hourly distribution keys - convert string keys back to integers
+            hourly_dist = time_dist.get('hourly', {})
+            if hourly_dist and isinstance(list(hourly_dist.keys())[0], str):
+                hourly_dist = {int(k): v for k, v in hourly_dist.items()}
+
+            patterns['hourly_distribution'] = hourly_dist
             patterns['daily_distribution'] = time_dist.get('daily', {})
             patterns['peak_hour'] = time_dist.get('peak_hour')
             patterns['peak_day'] = time_dist.get('peak_day')
