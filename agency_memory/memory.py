@@ -142,12 +142,19 @@ class Memory:
 
     def search(self, tags: List[str]) -> List[Dict[str, Any]]:
         """Search memories by tags."""
-        return self._store.search(tags)
+        result = self._store.search(tags)
+        # Handle both MemorySearchResult and direct list returns
+        if hasattr(result, 'records'):
+            return [record.to_dict() for record in result.records]
+        else:
+            # Already a list of dictionaries
+            return result
 
     def get(self, key: str) -> Optional[Dict[str, Any]]:
         """Get a specific memory by key."""
         if hasattr(self._store, 'get'):
-            return self._store.get(key)
+            record = self._store.get(key)
+            return record.to_dict() if record else None
         # Fallback: search all and find by key
         all_memories = self.get_all()
         for memory in all_memories:
@@ -157,7 +164,13 @@ class Memory:
 
     def get_all(self) -> List[Dict[str, Any]]:
         """Get all memories."""
-        return self._store.get_all()
+        result = self._store.get_all()
+        # Handle both MemorySearchResult and direct list returns
+        if hasattr(result, 'records'):
+            return [record.to_dict() for record in result.records]
+        else:
+            # Already a list of dictionaries
+            return result
 
 
 def create_session_transcript(memories: List[Dict[str, Any]], session_id: str) -> str:
