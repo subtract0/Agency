@@ -55,6 +55,21 @@ from .patterns import (
     ApplicationPriority,
     EventStatus,
 )
+from .message import MessageEnvelope
+from .orchestrator import (
+    ExecutionMetrics,
+    TaskResultModel,
+    OrchestrationResultModel,
+    BackoffType,
+    FairnessType,
+    CancellationType,
+)
+from .kanban import (
+    KanbanCard,
+    KanbanFeed,
+    CardType,
+    CardStatus,
+)
 
 __all__ = [
     # Memory models
@@ -103,4 +118,18 @@ __all__ = [
     "ValidationStatus",
     "ApplicationPriority",
     "EventStatus",
+    # Messaging
+    "MessageEnvelope",
+    # Orchestrator models
+    "ExecutionMetrics",
+    "TaskResultModel",
+    "OrchestrationResultModel",
+    "BackoffType",
+    "FairnessType",
+    "CancellationType",
+    # Kanban models
+    "KanbanCard",
+    "KanbanFeed",
+    "CardType",
+    "CardStatus",
 ]

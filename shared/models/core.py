@@ -4,9 +4,10 @@ Replaces all Dict[str, Any] usage in core modules.
 """
 
 from datetime import datetime
-from typing import Optional, List, Any, Union
+from typing import Optional, List, Union
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
+from shared.types.json import JSONValue
 
 
 class HealthStatus(BaseModel):
@@ -31,8 +32,8 @@ class ErrorDetectionResult(BaseModel):
     fixes_applied: int = Field(0, description="Number of fixes applied")
     success: bool = Field(True, description="Whether operation succeeded")
     details: List[str] = Field(default_factory=list)
-    findings: List[Any] = Field(default_factory=list)  # Will use Finding type
-    patches: List[Any] = Field(default_factory=list)  # Will use Patch type
+    findings: List[JSONValue] = Field(default_factory=list)  # Structured Finding or JSONValue
+    patches: List[JSONValue] = Field(default_factory=list)  # Structured Patch or JSONValue
 
 
 class TelemetryEvent(BaseModel):
@@ -40,7 +41,7 @@ class TelemetryEvent(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     event: str = Field(..., description="Event name")
-    data: dict[str, Any] = Field(default_factory=dict, description="Event data")
+    data: dict[str, JSONValue] = Field(default_factory=dict, description="Event data")
     level: str = Field("info", description="Event level")
     timestamp: datetime = Field(default_factory=datetime.now)
     source: Optional[str] = Field(None, description="Event source")
@@ -106,7 +107,7 @@ class PatternContext(BaseModel):
     error_message: Optional[str] = Field(None)
     line_number: Optional[int] = Field(None)
     code_context: Optional[str] = Field(None)
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, JSONValue] = Field(default_factory=dict)
 
 
 class PatternStatistics(BaseModel):
@@ -128,8 +129,8 @@ class ToolCall(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     tool_name: str = Field(...)
-    parameters: dict[str, Any] = Field(default_factory=dict)
-    result: Optional[Any] = Field(None)
+    parameters: dict[str, JSONValue] = Field(default_factory=dict)
+    result: Optional[JSONValue] = Field(None)
     success: bool = Field(True)
     error: Optional[str] = Field(None)
     duration_ms: Optional[int] = Field(None)

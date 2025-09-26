@@ -4,7 +4,8 @@ Replaces Dict[str, Any] in learning agent tools and self-healing systems.
 """
 
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Literal, Union
+from typing import Dict, List, Optional, Literal, Union
+from shared.types.json import JSONValue
 from pydantic import BaseModel, Field, field_validator
 from enum import Enum
 
@@ -75,7 +76,7 @@ class HealingPattern(BaseModel):
     overall_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     effectiveness_score: float = Field(default=0.0, ge=0.0)
     description: str
-    evidence: List[Dict[str, Any]] = Field(default_factory=list)
+    evidence: List[Dict[str, JSONValue]] = Field(default_factory=list)
     validation_status: ValidationStatus = ValidationStatus.PENDING
 
     class Config:
@@ -84,7 +85,7 @@ class HealingPattern(BaseModel):
 
 class CrossSessionData(BaseModel):
     """Cross-session learning data structure."""
-    learnings: List[Dict[str, Any]] = Field(default_factory=list)
+    learnings: List[Dict[str, JSONValue]] = Field(default_factory=list)
     total_learnings: int = Field(default=0, ge=0)
     sources: List[str] = Field(default_factory=list)
 
@@ -104,12 +105,12 @@ class PatternExtraction(BaseModel):
     """Results from pattern extraction process."""
     extraction_timestamp: datetime = Field(default_factory=datetime.now)
     time_window: str
-    data_summary: Dict[str, Any]
+    data_summary: Dict[str, JSONValue]
     patterns_found: int = Field(default=0, ge=0)
     patterns: List[HealingPattern] = Field(default_factory=list)
-    insights: List[Dict[str, Any]] = Field(default_factory=list)
-    learning_objects: List[Dict[str, Any]] = Field(default_factory=list)
-    recommendations: List[Dict[str, Any]] = Field(default_factory=list)
+    insights: List[Dict[str, JSONValue]] = Field(default_factory=list)
+    learning_objects: List[Dict[str, JSONValue]] = Field(default_factory=list)
+    recommendations: List[Dict[str, JSONValue]] = Field(default_factory=list)
 
     class Config:
         extra = "forbid"
@@ -120,10 +121,10 @@ class ToolExecutionResult(BaseModel):
     tool_name: str
     execution_timestamp: datetime = Field(default_factory=datetime.now)
     status: EventStatus
-    result_data: Dict[str, Any] = Field(default_factory=dict)
+    result_data: Dict[str, JSONValue] = Field(default_factory=dict)
     error_message: Optional[str] = None
     execution_time: Optional[float] = None
-    context: Dict[str, Any] = Field(default_factory=dict)
+    context: Dict[str, JSONValue] = Field(default_factory=dict)
 
     class Config:
         extra = "forbid"
@@ -137,7 +138,7 @@ class ValidationOutcome(BaseModel):
     status: ValidationStatus
     confidence_score: float = Field(ge=0.0, le=1.0)
     validation_criteria: List[str] = Field(default_factory=list)
-    outcome_details: Dict[str, Any] = Field(default_factory=dict)
+    outcome_details: Dict[str, JSONValue] = Field(default_factory=dict)
     next_review_date: Optional[datetime] = None
 
     class Config:
@@ -204,7 +205,7 @@ class LearningRecommendation(BaseModel):
     actionable_steps: List[str] = Field(default_factory=list)
     confidence: float = Field(ge=0.0, le=1.0)
     supporting_patterns: int = Field(ge=0)
-    evidence: List[Dict[str, Any]] = Field(default_factory=list)
+    evidence: List[Dict[str, JSONValue]] = Field(default_factory=list)
     match_reason: Optional[str] = None
     expected_benefit: str
     application_priority: ApplicationPriority
@@ -323,8 +324,8 @@ class LearningObject(BaseModel):
     actionable_insight: str
     confidence: float = Field(ge=0.0, le=1.0)
     keywords: List[str] = Field(default_factory=list)
-    patterns: Dict[str, Any] = Field(default_factory=dict)
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    patterns: Dict[str, JSONValue] = Field(default_factory=dict)
+    metadata: Dict[str, JSONValue] = Field(default_factory=dict)
     application_criteria: List[str] = Field(default_factory=list)
     success_metrics: List[str] = Field(default_factory=list)
     created_timestamp: datetime = Field(default_factory=datetime.now)
@@ -338,7 +339,7 @@ class PatternMatchSummary(BaseModel):
     total_matches: int = Field(default=0, ge=0)
     average_relevance: float = Field(default=0.0, ge=0.0, le=1.0)
     match_types: Dict[str, int] = Field(default_factory=dict)
-    top_matches: List[Dict[str, Any]] = Field(default_factory=list)
+    top_matches: List[Dict[str, JSONValue]] = Field(default_factory=list)
 
     class Config:
         extra = "forbid"

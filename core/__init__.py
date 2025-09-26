@@ -4,7 +4,8 @@ Simplifies imports and provides a clean API for autonomous agents.
 """
 
 import os
-from typing import Optional, List, Any
+from typing import Optional, List
+from shared.types.json import JSONValue
 
 # Feature flags
 ENABLE_UNIFIED_CORE = os.getenv("ENABLE_UNIFIED_CORE", "true").lower() == "true"
@@ -15,7 +16,7 @@ from .self_healing import SelfHealingCore, Finding, Patch
 from .telemetry import SimpleTelemetry, get_telemetry, emit
 from .patterns import UnifiedPatternStore, Pattern, get_pattern_store
 from shared.models.core import (
-    ErrorDetectionResult, HealthStatus, LearningMetrics,
+    ErrorDetectionResult, HealthStatus,
     HealingAttempt, ToolCall, TelemetryEvent
 )
 
@@ -157,7 +158,7 @@ class UnifiedCore:
             warnings=metrics.get("recent_warnings", [])
         )
 
-    def emit_event(self, event: str, data: dict[str, Any] = None, level: str = "info"):
+    def emit_event(self, event: str, data: dict[str, JSONValue] = None, level: str = "info"):
         """
         Emit a telemetry event.
 
@@ -242,25 +243,18 @@ class UnifiedCore:
                 "reason": "LearningLoop not available"
             }, level="warning")
 
-    def get_learning_metrics(self) -> LearningMetrics:
+    def get_learning_metrics(self) -> dict[str, JSONValue]:
         """
         Get learning loop operational metrics.
 
         Returns:
-            Dictionary with learning loop metrics or empty dict if unavailable
+            dict[str, JSONValue]: learning loop metrics when available, otherwise {}
         """
         if self.learning_loop:
+            # Preserve backward-compatible raw metrics dict expected by tests/consumers
             metrics = self.learning_loop.get_metrics()
-            return LearningMetrics(
-                patterns_learned=metrics.get("patterns_learned", 0),
-                successful_applications=metrics.get("successful_applications", 0),
-                failed_applications=metrics.get("failed_applications", 0),
-                learning_rate=metrics.get("learning_rate", 0.0),
-                adaptation_score=metrics.get("adaptation_score", 0.0),
-                recent_learnings=metrics.get("recent_learnings", []),
-                active_experiments=metrics.get("active_experiments", 0)
-            )
-        return LearningMetrics()
+            return metrics if isinstance(metrics, dict) else {}
+        return {}
 
     def learn_from_operation_result(self, operation_id: str, success: bool,
                                   task_description: str = None,

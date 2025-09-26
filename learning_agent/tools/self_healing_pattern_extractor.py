@@ -9,6 +9,7 @@ import json
 import os
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
+from shared.types.json import JSONValue
 import logging
 from collections import defaultdict
 from shared.models.patterns import (
@@ -162,7 +163,7 @@ class SelfHealingPatternExtractor(BaseTool):
             successful_events=len(successful_events)
         )
 
-    def _create_structured_event(self, event_data: Dict[str, Any]) -> SelfHealingEvent:
+    def _create_structured_event(self, event_data: Dict[str, JSONValue]) -> SelfHealingEvent:
         """Create a structured SelfHealingEvent from raw event data."""
         # Extract timestamp
         timestamp_str = event_data.get('timestamp')
@@ -213,7 +214,7 @@ class SelfHealingPatternExtractor(BaseTool):
         """Check if structured event represents success."""
         return event.status in [EventStatus.SUCCESS, EventStatus.SUCCESSFUL, EventStatus.RESOLVED, EventStatus.COMPLETED]
 
-    def _collect_from_logs(self, time_boundary: datetime) -> List[Dict[str, Any]]:
+    def _collect_from_logs(self, time_boundary: datetime) -> List[Dict[str, JSONValue]]:
         """Collect self-healing events from log files."""
         events = []
         logs_dir = os.path.join(os.getcwd(), "logs", "self_healing")
@@ -237,7 +238,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return events
 
-    def _collect_from_telemetry(self, time_boundary: datetime) -> List[Dict[str, Any]]:
+    def _collect_from_telemetry(self, time_boundary: datetime) -> List[Dict[str, JSONValue]]:
         """Collect self-healing events from telemetry data."""
         events = []
         telemetry_dir = os.path.join(os.getcwd(), "logs", "telemetry")
@@ -264,7 +265,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return events
 
-    def _collect_from_agent_memory(self, time_boundary: datetime) -> List[Dict[str, Any]]:
+    def _collect_from_agent_memory(self, time_boundary: datetime) -> List[Dict[str, JSONValue]]:
         """Collect self-healing events from agent memory/context."""
         events = []
 
@@ -288,7 +289,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return events
 
-    def _parse_log_file(self, filepath: str, time_boundary: datetime) -> List[Dict[str, Any]]:
+    def _parse_log_file(self, filepath: str, time_boundary: datetime) -> List[Dict[str, JSONValue]]:
         """Parse log file for self-healing events."""
         events = []
 
@@ -314,7 +315,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return events
 
-    def _parse_structured_log_line(self, line: str, time_boundary: datetime) -> Optional[Dict[str, Any]]:
+    def _parse_structured_log_line(self, line: str, time_boundary: datetime) -> Optional[Dict[str, JSONValue]]:
         """Parse structured log line for self-healing information."""
         try:
             # Look for timestamp
@@ -367,7 +368,7 @@ class SelfHealingPatternExtractor(BaseTool):
         except Exception:
             return None
 
-    def _extract_healing_from_session(self, filepath: str) -> List[Dict[str, Any]]:
+    def _extract_healing_from_session(self, filepath: str) -> List[Dict[str, JSONValue]]:
         """Extract self-healing events from session transcript."""
         events = []
 
@@ -394,7 +395,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return events
 
-    def _is_self_healing_event(self, event: Dict[str, Any], time_boundary: datetime) -> bool:
+    def _is_self_healing_event(self, event: Dict[str, JSONValue], time_boundary: datetime) -> bool:
         """Check if event is related to self-healing and within time window."""
         # Check timestamp
         timestamp_str = event.get('timestamp')
@@ -412,7 +413,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return any(keyword in text_content for keyword in healing_keywords)
 
-    def _is_successful_event(self, event: Dict[str, Any]) -> bool:
+    def _is_successful_event(self, event: Dict[str, JSONValue]) -> bool:
         """Determine if an event represents a successful self-healing action."""
         status = event.get('status', '').lower()
         if status in ['success', 'successful', 'resolved', 'completed']:
@@ -660,7 +661,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return validated_patterns
 
-    def _generate_actionable_insights(self, patterns: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _generate_actionable_insights(self, patterns: List[Dict[str, JSONValue]]) -> List[Dict[str, JSONValue]]:
         """Generate actionable insights from validated patterns."""
         insights = []
 
@@ -729,7 +730,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return insights
 
-    def _create_learning_objects(self, patterns: List[HealingPattern], insights: List[Dict[str, Any]]) -> List[LearningObject]:
+    def _create_learning_objects(self, patterns: List[HealingPattern], insights: List[Dict[str, JSONValue]]) -> List[LearningObject]:
         """Create structured learning objects for VectorStore storage."""
         learning_objects = []
 
@@ -834,7 +835,7 @@ class SelfHealingPatternExtractor(BaseTool):
 
         return criteria
 
-    def _generate_recommendations(self, patterns: List[HealingPattern]) -> List[Dict[str, Any]]:
+    def _generate_recommendations(self, patterns: List[HealingPattern]) -> List[Dict[str, JSONValue]]:
         """Generate specific recommendations based on patterns."""
         recommendations = []
 
