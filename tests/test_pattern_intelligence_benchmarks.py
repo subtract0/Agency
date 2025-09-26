@@ -171,13 +171,23 @@ class TestIntelligenceAmplificationBenchmarks:
             expected_improvements = optimization.expected_improvements or []
         else:
             expected_improvements = optimization.get("expected_improvements", [])
-        velocity_improvements = [
-            imp for imp in expected_improvements
-            if "velocity" in imp.get("metric", "").lower()
-        ]
+        velocity_improvements = []
+        for imp in expected_improvements:
+            # Handle both dict and Pydantic model
+            if hasattr(imp, 'metric'):
+                metric = imp.metric or ""
+            else:
+                metric = imp.get("metric", "")
+            if "velocity" in metric.lower():
+                velocity_improvements.append(imp)
 
         if velocity_improvements:
-            improvement = velocity_improvements[0].get("predicted_improvement", 0)
+            imp = velocity_improvements[0]
+            # Handle both dict and Pydantic model
+            if hasattr(imp, 'predicted_improvement'):
+                improvement = imp.predicted_improvement or 0
+            else:
+                improvement = imp.get("predicted_improvement", 0)
 
             # BENCHMARK: Learning velocity must improve by ≥10%
             assert improvement >= 0.10, f"Learning velocity improvement too low: {improvement:.1%}"
@@ -208,10 +218,15 @@ class TestIntelligenceAmplificationBenchmarks:
         else:
             discovered_combinations = synergies.get("discovered_combinations", [])
 
-        high_synergy_combinations = [
-            combo for combo in discovered_combinations
-            if combo.get("synergy_potential", 0) >= 0.7
-        ]
+        high_synergy_combinations = []
+        for combo in discovered_combinations:
+            # Handle both dict and Pydantic model
+            if hasattr(combo, 'synergy_potential'):
+                synergy = combo.synergy_potential or 0
+            else:
+                synergy = combo.get("synergy_potential", 0)
+            if synergy >= 0.7:
+                high_synergy_combinations.append(combo)
 
         # BENCHMARK: Must discover ≥3 high-synergy combinations
         assert len(high_synergy_combinations) >= 3, \
