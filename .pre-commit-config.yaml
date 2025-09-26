@@ -37,3 +37,12 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [commit]
+
+      - id: mypy
+        name: MyPy Type Check (Constitutional Law #3)
+        entry: python -m mypy . --config-file mypy.ini
+        language: python
+        pass_filenames: false
+        always_run: true
+        stages: [commit]
+        additional_dependencies: [mypy]

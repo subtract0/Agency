@@ -15,6 +15,7 @@ from shared.system_hooks import (
 from tools import (
     Bash,
     Git,
+    GitHubManager,
     Read,
     Grep,
     Glob,
@@ -76,6 +77,7 @@ def create_merger_agent(
         tools=[
             Bash,
             Git,
+            GitHubManager,
             Read,
             Grep,
             Glob,
