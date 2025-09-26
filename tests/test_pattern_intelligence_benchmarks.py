@@ -156,13 +156,21 @@ class TestIntelligenceAmplificationBenchmarks:
         """
         # Baseline learning velocity
         baseline_analysis = intelligence_system["meta_learning"].analyze_learning_effectiveness()
-        baseline_velocity = baseline_analysis.get("learning_trends", {}).get("learning_velocity", 0)
+        # Handle both dict and Pydantic model returns
+        if hasattr(baseline_analysis, 'learning_trends'):
+            baseline_velocity = getattr(baseline_analysis.learning_trends, 'learning_velocity', 0)
+        else:
+            baseline_velocity = baseline_analysis.get("learning_trends", {}).get("learning_velocity", 0)
 
         # Optimize learning strategy
         optimization = intelligence_system["meta_learning"].optimize_learning_strategy()
 
         # Simulate improved velocity (in real system, this would be measured over time)
-        expected_improvements = optimization.get("expected_improvements", [])
+        # Handle both dict and Pydantic model returns
+        if hasattr(optimization, 'expected_improvements'):
+            expected_improvements = optimization.expected_improvements or []
+        else:
+            expected_improvements = optimization.get("expected_improvements", [])
         velocity_improvements = [
             imp for imp in expected_improvements
             if "velocity" in imp.get("metric", "").lower()
@@ -194,8 +202,14 @@ class TestIntelligenceAmplificationBenchmarks:
         # Discover pattern synergies
         synergies = intelligence_system["meta_learning"].discover_pattern_synergies()
 
+        # Handle both dict and Pydantic model returns
+        if hasattr(synergies, 'discovered_combinations'):
+            discovered_combinations = synergies.discovered_combinations or []
+        else:
+            discovered_combinations = synergies.get("discovered_combinations", [])
+
         high_synergy_combinations = [
-            combo for combo in synergies.get("discovered_combinations", [])
+            combo for combo in discovered_combinations
             if combo.get("synergy_potential", 0) >= 0.7
         ]
 
